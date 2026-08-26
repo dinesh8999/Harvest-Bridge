@@ -74,7 +74,7 @@ function calculateBreakdown(
 ): BuyerMatch['scoreBreakdown'] {
   // 1. Crop compatibility (binary + partial)
   const cropCompatibility = buyer.cropsWanted.some(
-    (c) => c.toLowerCase() === input.cropName.toLowerCase()
+    (c) => c.toLowerCase() === (input.cropName || '').toLowerCase()
   ) ? 100 : 0;
 
   // 2. Quantity compatibility

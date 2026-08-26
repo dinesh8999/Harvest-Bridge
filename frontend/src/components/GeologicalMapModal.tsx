@@ -339,6 +339,9 @@ export function GeologicalMapModal({ isOpen, onClose, onSelectLocation, currentL
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.95, y: 15 }}
         transition={{ duration: 0.25 }}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="geo-modal-title"
         className="bg-white rounded-3xl border border-slate-200 shadow-2xl max-w-5xl w-full overflow-hidden flex flex-col max-h-[92vh]"
       >
         {/* Modal Header */}
@@ -348,7 +351,7 @@ export function GeologicalMapModal({ isOpen, onClose, onSelectLocation, currentL
               <Globe className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="font-display text-xl font-bold text-slate-900">Live Geological & Location Map Search</h2>
+              <h2 id="geo-modal-title" className="font-display text-xl font-bold text-slate-900">Live Geological & Location Map Search</h2>
               <p className="text-slate-500 text-xs mt-0.5">
                 Search any village/mandal (e.g. Murukumbattu), click map markers, or select from the list
               </p>
@@ -357,6 +360,7 @@ export function GeologicalMapModal({ isOpen, onClose, onSelectLocation, currentL
           <button
             type="button"
             onClick={onClose}
+            aria-label="Close modal"
             className="p-2 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-200 transition-all"
           >
             <X className="w-5 h-5" />

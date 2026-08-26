@@ -5,11 +5,13 @@
   "type": "module",
   "scripts": {
     "start": "node index.js",
-    "test": "npx tsx test-engine.js"
+    "test": "npx tsx test-engine.ts"
   },
   "dependencies": {
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
-    "express": "^5.2.1"
+    "express": "^5.2.1",
+    "express-rate-limit": "^7.5.0",
+    "helmet": "^8.0.0"
   }
 }

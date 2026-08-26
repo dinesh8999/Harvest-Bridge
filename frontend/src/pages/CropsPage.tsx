@@ -4,7 +4,7 @@
 
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Sprout, Plus, AlertTriangle, Clock, Zap, ArrowRight } from 'lucide-react';
+import { Sprout, Plus, Clock, ArrowRight } from 'lucide-react';
 import { DEMO_CROPS } from '../data/demoData';
 import { calculateSurplusRisk } from '../services/ai/surplusEngine';
 import { formatCurrency, formatWeight, getRiskColor } from '../utils/format';

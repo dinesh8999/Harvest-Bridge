@@ -199,7 +199,14 @@ export function RiskResultPanel({ prediction, matches, formData, onReset }: Prop
           </div>
 
           {/* Risk meter */}
-          <div className="risk-meter mb-2">
+          <div
+            role="progressbar"
+            aria-valuenow={prediction.surplusRisk}
+            aria-valuemin={0}
+            aria-valuemax={100}
+            aria-label="Surplus Risk Percentage"
+            className="risk-meter mb-2"
+          >
             <motion.div
               initial={{ width: 0 }}
               animate={{ width: `${prediction.surplusRisk}%` }}

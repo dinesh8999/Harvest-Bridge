@@ -10,7 +10,7 @@ interface Props {
   urgency: string;
 }
 
-export function RescueWindowTimeline({ daysUntilHarvest, urgency }: Props) {
+export function RescueWindowTimeline({ daysUntilHarvest, urgency: _urgency }: Props) {
   const phases = [
     {
       label: 'Planning Window',
