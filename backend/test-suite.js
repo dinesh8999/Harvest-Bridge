@@ -344,6 +344,112 @@ test('Grounded bilingual AI assistant answers accurately', () => {
   assert(teReply.content.length > 20, 'Telugu reply provided in Telugu script');
 });
 
+// ── 7. ENTERPRISE RDBMS, CONSTRAINTS & ACID TRANSACTIONS ──────
+console.log('\n--- 7. Enterprise RDBMS, Constraints & ACID Transactions Suite ---');
+
+test('RDBMS Health & Relational Metadata Verification', () => {
+  const health = db.getHealth();
+  assert(health.status === 'healthy', 'Database health status must be healthy');
+  assert(health.totalRecords > 0, 'Database contains initialized relational records');
+  assert(health.foreignKeysEnforced === true, 'Foreign key integrity enforcement enabled');
+  assert(health.acidTransactions === true, 'ACID transactions enabled');
+  assert(health.tables.users >= 5, 'Seed users initialized');
+  assert(health.tables.cropListings >= 4, 'Seed crop listings initialized');
+});
+
+test('Foreign Key Integrity & Invalid Reference Prevention', () => {
+  let fkCaught = false;
+  try {
+    db.insert('cropListings', {
+      farmerId: 'non-existent-farmer-999',
+      cropName: 'Tomato',
+      totalQuantity: 1000,
+      availableQuantity: 1000,
+      minAcceptablePrice: 20,
+    });
+  } catch (err) {
+    fkCaught = true;
+    assert(err.message.includes('Foreign Key constraint violation'), 'Must specify Foreign Key constraint error');
+  }
+  assert(fkCaught, 'Inserting listing for non-existent farmer must violate FK constraint');
+});
+
+test('ACID Transaction Commit: Atomic Multi-Table Mutation', async () => {
+  const testUserId = `test-tx-farmer-${Date.now()}`;
+  const testPhone = `90000${Math.floor(10000 + Math.random() * 90000)}`;
+
+  await db.withTransaction(async (tx) => {
+    // 1. Insert User
+    const user = tx.insert('users', {
+      _id: testUserId,
+      name: 'Transaction Farmer',
+      phone: testPhone,
+      passwordHash: 'dummy_hash',
+      passwordSalt: 'dummy_salt',
+      role: 'farmer',
+    });
+
+    // 2. Insert Listing linked to User
+    tx.insert('cropListings', {
+      farmerId: user._id,
+      farmerName: user.name,
+      cropName: 'Tomato',
+      totalQuantity: 500,
+      availableQuantity: 500,
+      minAcceptablePrice: 18,
+      expectedHarvestDate: new Date().toISOString().split('T')[0],
+      location: 'Chittoor',
+    });
+  });
+
+  // Verify both committed
+  const foundUser = db.findById('users', testUserId);
+  const foundListings = db.find('cropListings', (l) => l.farmerId === testUserId);
+  assert(foundUser && foundUser.name === 'Transaction Farmer', 'User committed in transaction');
+  assert(foundListings.length === 1, 'Linked crop listing committed in transaction');
+
+  // Clean up
+  db.remove('users', testUserId);
+});
+
+test('ACID Transaction Rollback: Clean State Reversion on Error', async () => {
+  const rollbackUserId = `rollback-farmer-${Date.now()}`;
+  const rollbackPhone = `90000${Math.floor(10000 + Math.random() * 90000)}`;
+
+  let rollbackCaught = false;
+  try {
+    await db.withTransaction(async (tx) => {
+      tx.insert('users', {
+        _id: rollbackUserId,
+        name: 'Rollback Farmer',
+        phone: rollbackPhone,
+        passwordHash: 'dummy_hash',
+        passwordSalt: 'dummy_salt',
+        role: 'farmer',
+      });
+
+      // Simulate unexpected mid-transaction crash
+      throw new Error('Simulated network/disk crash during transaction');
+    });
+  } catch (err) {
+    rollbackCaught = true;
+  }
+
+  assert(rollbackCaught, 'Transaction caught error');
+  const checkUser = db.findById('users', rollbackUserId);
+  assert(checkUser === null, 'Uncommitted user must be completely rolled back with zero partial writes');
+});
+
+test('Data Interchange: JSON Export and Backup Integrity', () => {
+  const exported = db.exportJson();
+  assert(exported.version === '2.4.0', 'Export metadata contains version');
+  assert(exported.tables && exported.tables.users.length > 0, 'Export includes users table');
+  assert(exported.tables.cropListings.length > 0, 'Export includes cropListings table');
+
+  const importResult = db.importJson(exported);
+  assert(importResult.importedTables >= 5, 'Import successfully restored all tables');
+});
+
 // ── SUMMARY ───────────────────────────────────────────────────
 console.log('\n═══════════════════════════════════════════════════════════════');
 console.log(`📊 TEST SUITE SUMMARY: ${passed}/${total} PASSED (${Math.round((passed / total) * 100)}%)`);

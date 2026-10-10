@@ -566,95 +566,103 @@ function generateInitialData() {
   };
 }
 
-// In-memory cache + persistent disk store
+import { rdbms } from './rdbms.js';
+
+// Unified Relational Database Adapter with ACID Transactions and Constraints
 class TransactionalStore {
   constructor() {
-    this.data = null;
-    this.isDirty = false;
+    this.rdbms = rdbms;
     this.init();
   }
 
   init() {
     try {
-      if (fs.existsSync(DB_FILE)) {
-        const raw = fs.readFileSync(DB_FILE, 'utf-8');
-        this.data = JSON.parse(raw);
+      if (!fs.existsSync(DB_FILE)) {
+        const seed = generateInitialData();
+        for (const [table, rows] of Object.entries(seed)) {
+          this.rdbms.inMemoryTables.set(table, rows);
+        }
+        this.rdbms.saveToDiskSync();
       } else {
-        this.data = generateInitialData();
-        this.saveSync();
+        this.rdbms.loadFromDisk();
       }
+      this.rdbms.buildIndexes();
     } catch (err) {
       console.warn('⚠️ Error loading DB from disk, generating fresh seed data:', err.message);
-      this.data = generateInitialData();
-      this.saveSync();
+      const seed = generateInitialData();
+      for (const [table, rows] of Object.entries(seed)) {
+        this.rdbms.inMemoryTables.set(table, rows);
+      }
+      this.rdbms.saveToDiskSync();
+      this.rdbms.buildIndexes();
     }
+  }
+
+  get data() {
+    // Dynamic property proxy for backward compatibility with data access
+    const obj = {};
+    for (const [key, rows] of this.rdbms.inMemoryTables.entries()) {
+      obj[key] = rows;
+    }
+    return obj;
   }
 
   saveSync() {
-    try {
-      const tmpFile = `${DB_FILE}.tmp.${Date.now()}`;
-      fs.writeFileSync(tmpFile, JSON.stringify(this.data, null, 2), 'utf-8');
-      fs.renameSync(tmpFile, DB_FILE);
-      this.isDirty = false;
-    } catch (err) {
-      console.error('❌ Failed to save persistent store:', err.message);
-    }
+    this.rdbms.saveToDiskSync();
   }
 
-  // Generic Query helpers
+  // Relational Query Methods
   find(collectionName, queryFn = () => true) {
-    const list = this.data[collectionName] || [];
-    return list.filter(queryFn);
+    return this.rdbms.find(collectionName, queryFn);
   }
 
   findOne(collectionName, queryFn) {
-    const list = this.data[collectionName] || [];
-    return list.find(queryFn) || null;
+    return this.rdbms.findOne(collectionName, queryFn);
   }
 
   findById(collectionName, id) {
-    return this.findOne(collectionName, (item) => item._id === id);
+    return this.rdbms.findById(collectionName, id);
+  }
+
+  findByPhone(collectionName, phone) {
+    return this.rdbms.findByPhone(collectionName, phone);
   }
 
   insert(collectionName, doc) {
-    if (!this.data[collectionName]) {
-      this.data[collectionName] = [];
-    }
-    const newDoc = {
-      _id: doc._id || `${collectionName.slice(0, 4)}-${crypto.randomUUID().slice(0, 8)}`,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-      ...doc,
-    };
-    this.data[collectionName].unshift(newDoc);
-    this.saveSync();
-    return newDoc;
+    return this.rdbms.insert(collectionName, doc);
   }
 
   update(collectionName, id, updateFields) {
-    const list = this.data[collectionName] || [];
-    const index = list.findIndex((item) => item._id === id);
-    if (index === -1) return null;
-
-    const updated = {
-      ...list[index],
-      ...updateFields,
-      updatedAt: new Date().toISOString(),
-    };
-    list[index] = updated;
-    this.saveSync();
-    return updated;
+    return this.rdbms.update(collectionName, id, updateFields);
   }
 
   remove(collectionName, id) {
-    const list = this.data[collectionName] || [];
-    const index = list.findIndex((item) => item._id === id);
-    if (index === -1) return false;
+    return this.rdbms.remove(collectionName, id);
+  }
 
-    list.splice(index, 1);
-    this.saveSync();
-    return true;
+  // ACID Transaction Wrapper
+  async withTransaction(operation) {
+    return this.rdbms.withTransaction(operation);
+  }
+
+  // Parameterized SQL Query
+  async query(sqlText, params = []) {
+    return this.rdbms.query(sqlText, params);
+  }
+
+  // Backup & Restore
+  exportJson() {
+    return this.rdbms.exportJson();
+  }
+
+  importJson(data) {
+    return this.rdbms.importJson(data);
+  }
+
+  getHealth() {
+    return this.rdbms.getHealth();
   }
 }
 
 export const db = new TransactionalStore();
+export { rdbms };

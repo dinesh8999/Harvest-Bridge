@@ -9,7 +9,7 @@ import cors from 'cors';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
 import dotenv from 'dotenv';
-import { db } from './database/store.js';
+import { db, rdbms } from './database/store.js';
 import {
   registerUser,
   loginUser,
@@ -70,17 +70,54 @@ function sanitize(val) {
 }
 
 // ─────────────────────────────────────────────
-// 1. SYSTEM & HEALTH
+// 1. SYSTEM, HEALTH & ENTERPRISE RDBMS MANAGEMENT
 // ─────────────────────────────────────────────
 app.get('/api/health', (req, res) => {
+  const dbHealth = rdbms.getHealth();
   res.json({
     status: 'ok',
     service: 'Harvest Bridge Enterprise API Server',
-    version: '2.4.0',
+    version: '2.5.0',
     timestamp: new Date().toISOString(),
-    database: 'Persistent ACID JSON Store Active',
+    database: dbHealth.engine,
+    databaseStatus: dbHealth.status,
+    totalRecords: dbHealth.totalRecords,
     security: 'Helmet + RateLimiter + PBKDF2 Auth Active',
   });
+});
+
+app.get('/api/database/health', (req, res) => {
+  res.json(rdbms.getHealth());
+});
+
+app.get('/api/database/schema', (req, res) => {
+  try {
+    const schemaPath = new URL('./database/schema.sql', import.meta.url);
+    import('node:fs').then((fs) => {
+      const sql = fs.readFileSync(schemaPath, 'utf-8');
+      res.type('text/plain').send(sql);
+    });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to read schema definition.' });
+  }
+});
+
+app.get('/api/database/export', requireAuth, requireRole(['admin']), (req, res) => {
+  try {
+    const backup = rdbms.exportJson();
+    res.json(backup);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.post('/api/database/import', requireAuth, requireRole(['admin']), (req, res) => {
+  try {
+    const result = rdbms.importJson(req.body);
+    res.json({ success: true, ...result });
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
 });
 
 // ─────────────────────────────────────────────

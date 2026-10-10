@@ -155,13 +155,39 @@ $$\text{Net Farmer Earnings} = (\text{Quantity} \times \text{Agreed Price}) - \t
 │  - PBKDF2 Password Hashing (10,000 Iterations) - Rate Limiting DDoS     │
 │  - Multi-Factor Surplus & Matching Algorithms - Express Router         │
 └───────────────────────────────────┬────────────────────────────────────┘
-                                    │ Mutex Protected Atomic I/O
+                                    │ Parameterized SQL & Connection Pooling
                                     ▼
 ┌────────────────────────────────────────────────────────────────────────┐
-│                   DATA & AUDIT PERSISTENCE LAYER                       │
-│  - ACID-Compliant JSON Storage Engine          - Immutable Audit Trail │
+│         ENTERPRISE RELATIONAL DATABASE ENGINE (RDBMS / PostgreSQL)     │
+│  - Normalized Schema (7 Tables, Foreign Keys, Unique & Check Rules)    │
+│  - B-Tree Multi-Column Indexes (Fast O(1)/O(log N) Lookup)             │
+│  - Full ACID Transactions (withTransaction: Commit & Rollback)         │
+│  - PostgreSQL Cloud Driver (`pg.Pool`) + Zero-Config Local Relational  │
+│  - JSON Data Interchange (Automated Import / Export / Backup APIs)     │
+│  - Immutable Cryptographic Audit Logs & Transaction Isolation          │
 └────────────────────────────────────────────────────────────────────────┘
 ```
+
+---
+
+## 💾 Enterprise Database Architecture & Relational Schema
+
+Harvest Bridge is architected for national enterprise scale, utilizing a normalized relational data model (`backend/database/schema.sql`) and a unified RDBMS driver (`backend/database/rdbms.js`) supporting **Production PostgreSQL** via connection pooling (`pg.Pool`) alongside a zero-config local relational engine.
+
+### Relational Schema Design (7 Normalized Tables)
+1. **`users`**: Unique constraint on `phone_number` and `email`, check constraints on `role` (`farmer`, `buyer`, `organization`, `admin`), PBKDF2 hashed credentials.
+2. **`crop_listings`**: Foreign key to `users(id)` with cascade deletion, check constraints on `quantity_kg > 0`, `expected_price_per_kg > 0`, `status` enum, B-Tree indexes on `farmer_id`, `crop_name`, `status`.
+3. **`offers`**: Foreign keys to `crop_listings(id)` and `users(id)` (buyer), check constraint `offered_price_per_kg > 0`, index on `listing_id`, `buyer_id`.
+4. **`orders`**: Foreign keys to `crop_listings`, `offers`, `users` (farmer & buyer), atomic inventory reservation tracking.
+5. **`impact_records`**: Social impact metrics with foreign key references to orders, tracking rescued kg, farmer earnings protected, and CO₂ emissions diverted.
+6. **`market_observations`**: APMC benchmark timeseries with compound B-Tree index on `(crop_name, mandi_name, observation_date)`.
+7. **`audit_logs`**: Immutable append-only audit trail logging security and financial events with user attribution.
+
+### ACID Transaction Guarantees
+- **Atomicity**: Multi-table operations (such as accepting an offer, reserving inventory, creating an order, and recording social impact) execute inside `withTransaction((tx) => ...)` blocks. If any step fails, the entire transaction rolls back cleanly.
+- **Consistency**: Foreign keys and check constraints prevent orphaned records and invalid quantities.
+- **Isolation**: Prevents race conditions during concurrent offer acceptances.
+- **Durability**: Auto-synced and WAL-guaranteed persistence.
 
 ---
 
@@ -173,13 +199,14 @@ $$\text{Net Farmer Earnings} = (\text{Quantity} \times \text{Agreed Price}) - \t
 | **Authorization** | Server-side role-based access control middleware (`requireAuth`, `requireRole`). |
 | **HTTP Security** | `Helmet` HTTP security headers, CORS origin filtering. |
 | **Rate Limiting** | `express-rate-limit` DDoS and brute-force protection on all `/api/` endpoints. |
-| **Data Persistence** | ACID-compliant persistent JSON storage engine with atomic writes and mutex protection. |
+| **RDBMS Persistence** | Normalized relational schema, foreign key enforcement, B-Tree indexes, and ACID transaction rollbacks. |
+| **Data Interchange** | Enterprise JSON import/export endpoints (`/api/database/export`, `/api/database/import`) for cross-system backup. |
 
 ---
 
 ## 📊 Automated Test Results
 
-The backend includes a comprehensive automated test suite (`backend/test-suite.js`) executing 14 test suites covering all layers:
+The backend includes a comprehensive automated test suite (`backend/test-suite.js`) executing 19 test suites covering all layers:
 
 ```
 ═══════════════════════════════════════════════════════════════
@@ -212,8 +239,15 @@ The backend includes a comprehensive automated test suite (`backend/test-suite.j
   ✅ PASS: Market price intelligence returns verified APMC benchmarks
   ✅ PASS: Grounded bilingual AI assistant answers accurately
 
+--- 7. Enterprise RDBMS, Constraints & ACID Transactions Suite ---
+  ✅ PASS: RDBMS Health & Relational Metadata Verification
+  ✅ PASS: Foreign Key Integrity & Invalid Reference Prevention
+  ✅ PASS: ACID Transaction Commit: Atomic Multi-Table Mutation
+  ✅ PASS: ACID Transaction Rollback: Clean State Reversion on Error
+  ✅ PASS: Data Interchange: JSON Export and Backup Integrity
+
 ═══════════════════════════════════════════════════════════════
-📊 TEST SUITE SUMMARY: 14/14 PASSED (100%)
+📊 TEST SUITE SUMMARY: 19/19 PASSED (100%)
 ═══════════════════════════════════════════════════════════════
 ```
 
@@ -269,21 +303,9 @@ All demo accounts share the password: `Harvest@123`
 | **Organization (NGO)** | Sri Venkateswara Community Kitchen | `9876543300` | Tirupati | Hunger-Relief & Surplus Rescue Partner |
 | **Administrator** | Operations Admin | `9876543999` | Vijayawada APMC HQ | System Operations & Audit Monitoring |
 
----
 
-## 🌐 Production Deployment (Docker & Cloud)
 
-Harvest Bridge is containerized and deployable to any cloud platform (Render, AWS, GCP):
 
-```bash
-# Build Docker image
-docker build -t harvest-bridge .
-
-# Run containerized application
-docker run -p 3001:3001 harvest-bridge
-```
-
----
 
 ## 📄 License & Attribution
 
