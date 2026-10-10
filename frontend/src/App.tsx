@@ -1,6 +1,6 @@
 // =============================================
 // HARVEST BRIDGE — Master Application Router
-// Comprehensive role-aware routing and navigation
+// Clean 6-Core Navigation Architecture with Smooth Legacy Redirects
 // =============================================
 
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
@@ -8,18 +8,13 @@ import { AppProvider, useApp } from './hooks/useApp';
 import { Layout } from './components/Layout';
 import LandingPage from './pages/LandingPage';
 import DashboardPage from './pages/DashboardPage';
-import CheckRiskPage from './pages/CheckRiskPage';
 import CropsPage from './pages/CropsPage';
 import MatchesPage from './pages/MatchesPage';
 import OrdersPage from './pages/OrdersPage';
-import MarketPage from './pages/MarketPage';
-import RescueNetworkPage from './pages/RescueNetworkPage';
-import ImpactPage from './pages/ImpactPage';
-import SurplusRadarPage from './pages/SurplusRadarPage';
-import MapPage from './pages/MapPage';
+import InsightsPage from './pages/InsightsPage';
 import AssistantPage from './pages/AssistantPage';
-import AdminPage from './pages/AdminPage';
 import ProfilePage from './pages/ProfilePage';
+import AdminPage from './pages/AdminPage';
 import { LoginPage, RegisterPage } from './pages/AuthPages';
 
 // Protected route wrapper
@@ -34,97 +29,93 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
 function AppRoutes() {
   return (
     <Routes>
-      {/* Public */}
+      {/* ── Public Auth & Landing ── */}
       <Route path="/" element={<LandingPage />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
 
-      {/* Protected Routes inside Layout */}
+      {/* ── 6 Core Navigation Routes (Protected) ── */}
+      {/* 1. Dashboard */}
       <Route
         path="/dashboard"
         element={
           <ProtectedRoute>
-            <Layout><DashboardPage /></Layout>
+            <Layout>
+              <DashboardPage />
+            </Layout>
           </ProtectedRoute>
         }
       />
+
+      {/* 2. My Crops */}
       <Route
         path="/crops"
         element={
           <ProtectedRoute>
-            <Layout><CropsPage /></Layout>
+            <Layout>
+              <CropsPage />
+            </Layout>
           </ProtectedRoute>
         }
       />
+
+      {/* 3. Find Buyers */}
       <Route
-        path="/check-risk"
+        path="/buyers"
         element={
           <ProtectedRoute>
-            <Layout><CheckRiskPage /></Layout>
+            <Layout>
+              <MatchesPage />
+            </Layout>
           </ProtectedRoute>
         }
       />
-      <Route
-        path="/matches"
-        element={
-          <ProtectedRoute>
-            <Layout><MatchesPage /></Layout>
-          </ProtectedRoute>
-        }
-      />
+      <Route path="/matches" element={<Navigate to="/buyers" replace />} />
+
+      {/* 4. Orders */}
       <Route
         path="/orders"
         element={
           <ProtectedRoute>
-            <Layout><OrdersPage /></Layout>
+            <Layout>
+              <OrdersPage />
+            </Layout>
           </ProtectedRoute>
         }
       />
+
+      {/* 5. AI Insights (Consolidated Risk, Mandi, Radar) */}
       <Route
-        path="/market"
+        path="/insights"
         element={
           <ProtectedRoute>
-            <Layout><MarketPage /></Layout>
+            <Layout>
+              <InsightsPage />
+            </Layout>
           </ProtectedRoute>
         }
       />
-      <Route
-        path="/rescue"
-        element={
-          <ProtectedRoute>
-            <Layout><RescueNetworkPage /></Layout>
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/radar"
-        element={
-          <ProtectedRoute>
-            <Layout><SurplusRadarPage /></Layout>
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/map"
-        element={
-          <ProtectedRoute>
-            <Layout><MapPage /></Layout>
-          </ProtectedRoute>
-        }
-      />
+
+      {/* 6. AI Assistant */}
       <Route
         path="/assistant"
         element={
           <ProtectedRoute>
-            <Layout><AssistantPage /></Layout>
+            <Layout>
+              <AssistantPage />
+            </Layout>
           </ProtectedRoute>
         }
       />
+
+      {/* ── Auxiliary Settings & Administration ── */}
       <Route
-        path="/impact"
+        path="/profile"
         element={
           <ProtectedRoute>
-            <Layout><ImpactPage /></Layout>
+            <Layout>
+              <ProfilePage />
+            </Layout>
           </ProtectedRoute>
         }
       />
@@ -132,18 +123,20 @@ function AppRoutes() {
         path="/admin"
         element={
           <ProtectedRoute>
-            <Layout><AdminPage /></Layout>
+            <Layout>
+              <AdminPage />
+            </Layout>
           </ProtectedRoute>
         }
       />
-      <Route
-        path="/profile"
-        element={
-          <ProtectedRoute>
-            <Layout><ProfilePage /></Layout>
-          </ProtectedRoute>
-        }
-      />
+
+      {/* ── Safe Legacy Redirects (Consolidated Functionality) ── */}
+      <Route path="/check-risk" element={<Navigate to="/insights" replace />} />
+      <Route path="/radar" element={<Navigate to="/insights" replace />} />
+      <Route path="/market" element={<Navigate to="/insights" replace />} />
+      <Route path="/map" element={<Navigate to="/insights" replace />} />
+      <Route path="/rescue" element={<Navigate to="/buyers" replace />} />
+      <Route path="/impact" element={<Navigate to="/orders" replace />} />
 
       {/* Fallback */}
       <Route path="*" element={<Navigate to="/dashboard" replace />} />

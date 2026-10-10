@@ -1,203 +1,119 @@
 // =============================================
-// HARVEST BRIDGE — Master Role-Aware Layout
-// Supports Farmer, Buyer, Organization, and Admin Portals,
-// Live Language Switching (EN / తెలుగు), and Voice Readout
+// HARVEST BRIDGE — Master Clean Layout
+// Minimal, modern SaaS aesthetic with 6 primary navigation items:
+// 1. Dashboard, 2. My Crops, 3. Find Buyers, 4. Orders, 5. AI Insights, 6. AI Assistant
 // =============================================
 
 import { useState, type ReactNode } from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import {
-  LayoutDashboard, Sprout, Users, TrendingUp, MessageCircle,
-  Bell, Menu, X, Zap, BarChart3, Map, LogOut,
-  Leaf, User as UserIcon, Truck, Building2, ShieldCheck,
-  Volume2, VolumeX, Globe, Store, ChevronDown
+  LayoutDashboard, Sprout, Users, Truck, Sparkles,
+  Bot, Bell, Menu, X, Globe, LogOut, User as UserIcon,
+  ChevronRight, ShieldCheck, Leaf
 } from 'lucide-react';
-import { useApp, PERSONA_PRESETS } from '../hooks/useApp';
+import { useApp } from '../hooks/useApp';
 import { NotificationPanel } from './NotificationPanel';
-import { AnimatedPageWrapper } from './AnimatedPageWrapper';
-import type { UserRole, Language } from '../types';
+import type { Language } from '../types';
 
 interface LayoutProps {
   children: ReactNode;
 }
 
 export function Layout({ children }: LayoutProps) {
-  const { state, dispatch, t, speakText, stopSpeaking } = useApp();
+  const { state, dispatch, t } = useApp();
   const location = useLocation();
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const navigate = useNavigate();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [notifOpen, setNotifOpen] = useState(false);
-  const [personaMenuOpen, setPersonaMenuOpen] = useState(false);
 
   const user = state.currentUser;
-  const currentRole = user?.role || 'farmer';
   const unreadCount = state.notifications.filter((n) => !n.read).length;
 
-  // Build Dynamic Role-Aware Navigation
-  const getNavItems = () => {
-    const common = [
-      { path: '/dashboard', icon: LayoutDashboard, label: t('navDashboard') },
-      { path: '/crops', icon: Sprout, label: t('navMyCrops') },
-      { path: '/check-risk', icon: Zap, label: t('navCheckRisk'), badge: 'AI' },
-      { path: '/matches', icon: Users, label: t('navBuyerMatches') },
-      { path: '/orders', icon: Truck, label: t('navOrders'), badge: state.orders.length ? String(state.orders.length) : undefined },
-      { path: '/market', icon: Store, label: t('navMarketMandi') },
-      { path: '/rescue', icon: Building2, label: t('navRescueNetwork') },
-      { path: '/radar', icon: BarChart3, label: t('navSurplusRadar') },
-      { path: '/map', icon: Map, label: t('navMapView') },
-      { path: '/assistant', icon: MessageCircle, label: t('navAiAssistant') },
-      { path: '/impact', icon: TrendingUp, label: t('kpiTotalValueProtected') },
-    ];
-
-    if (currentRole === 'admin') {
-      common.push({ path: '/admin', icon: ShieldCheck, label: t('navAdminPortal'), badge: 'ADMIN' });
-    }
-
-    return common;
-  };
-
-  const navItems = getNavItems();
-
-  const handleRoleSwitch = (role: UserRole) => {
-    dispatch({ type: 'SWITCH_ROLE', payload: role });
-    setPersonaMenuOpen(false);
-  };
+  // The 6 Primary Navigation Items
+  const navItems = [
+    { path: '/dashboard', icon: LayoutDashboard, label: t('navDashboard') || 'Dashboard' },
+    { path: '/crops', icon: Sprout, label: t('navMyCrops') || 'My Crops' },
+    { path: '/buyers', icon: Users, label: t('navFindBuyers') || 'Find Buyers', altPath: '/matches' },
+    { path: '/orders', icon: Truck, label: t('navOrders') || 'Orders', badge: state.orders.length > 0 ? String(state.orders.length) : undefined },
+    { path: '/insights', icon: Sparkles, label: t('navAiInsights') || 'AI Insights', altPath: '/check-risk' },
+    { path: '/assistant', icon: Bot, label: t('navAiAssistant') || 'AI Assistant' },
+  ];
 
   const toggleLanguage = () => {
     const nextLang: Language = state.language === 'en' ? 'te' : 'en';
     dispatch({ type: 'SET_LANGUAGE', payload: nextLang });
   };
 
-  const handleAudioTour = () => {
-    if (state.isSpeaking) {
-      stopSpeaking();
-    } else {
-      const text = state.language === 'te'
-        ? `హార్వెస్ట్ బ్రిడ్జ్ కి స్వాగతం. మీ డాష్‌బోర్డ్‌లో పంటల మిగులు ప్రమాదాలు, మార్కెట్ ధరలు మరియు కొనుగోలుదారుల వివరాలు పర్యవేక్షించబడుతున్నాయి.`
-        : `Welcome to Harvest Bridge. Your agricultural surplus management system is actively monitoring regional supply pressure, verified mandi benchmarks, and buyer purchase orders.`;
-      speakText(text);
-    }
+  const handleSignOut = () => {
+    dispatch({ type: 'LOGOUT' });
+    navigate('/login');
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 flex">
-      {/* ── Sidebar ── */}
+    <div className="min-h-screen bg-[#F7F9F7] text-[#17211B] flex">
+      {/* ── Desktop Sidebar ── */}
       <aside
-        className={`fixed inset-y-0 left-0 z-50 w-68 bg-white border-r border-slate-200 transform transition-transform duration-300 lg:translate-x-0 lg:relative lg:inset-auto shadow-sm flex flex-col ${
-          sidebarOpen ? 'translate-x-0' : '-translate-x-full'
+        className={`fixed inset-y-0 left-0 z-40 w-64 bg-white border-r border-[#E3E9E4] flex flex-col transition-transform duration-200 lg:static lg:translate-x-0 ${
+          mobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
         {/* Brand Header */}
-        <div className="flex items-center justify-between p-5 border-b border-slate-200">
-          <Link to="/" className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-forest-600 to-forest-800 flex items-center justify-center shadow-sm text-white">
+        <div className="p-5 border-b border-[#E3E9E4] flex items-center justify-between">
+          <Link to="/dashboard" className="flex items-center gap-3 group">
+            <div className="w-9 h-9 rounded-xl bg-[#246B4B] text-white flex items-center justify-center shadow-xs">
               <Leaf className="w-5 h-5" />
             </div>
             <div>
-              <div className="font-display font-bold text-slate-900 text-base leading-tight flex items-center gap-1.5">
+              <div className="font-display font-bold text-sm text-[#17211B] leading-tight">
                 Harvest Bridge
               </div>
-              <div className="text-[11px] text-slate-500 font-medium tracking-tight">
-                {t('tagline')}
+              <div className="text-[11px] text-[#647067] font-medium">
+                Predict. Redirect. Protect.
               </div>
             </div>
           </Link>
           <button
-            onClick={() => setSidebarOpen(false)}
-            className="lg:hidden btn-ghost p-1.5 text-slate-500"
+            onClick={() => setMobileMenuOpen(false)}
+            className="lg:hidden p-1.5 text-[#647067] hover:text-[#17211B]"
           >
-            <X className="w-4 h-4" />
+            <X className="w-5 h-5" />
           </button>
         </div>
 
-        {/* Persona Switcher Box */}
-        <div className="p-3 mx-3 mt-3 bg-slate-100/90 rounded-2xl border border-slate-200 relative">
-          <div className="flex items-center justify-between mb-1.5">
-            <span className="text-[10px] font-bold tracking-wider text-slate-600 uppercase">
-              Active Persona
-            </span>
-            <button
-              onClick={() => setPersonaMenuOpen(!personaMenuOpen)}
-              className="text-[11px] font-bold text-forest-700 hover:text-forest-800 flex items-center gap-0.5"
-            >
-              Switch <ChevronDown className="w-3 h-3" />
-            </button>
-          </div>
-
-          <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-full bg-forest-600 text-white font-bold text-xs flex items-center justify-center shadow-xs">
-              {user?.name.charAt(0)}
+        {/* User Card */}
+        {user && (
+          <div className="p-3 mx-3 mt-3 bg-[#F7F9F7] border border-[#E3E9E4] rounded-xl flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-full bg-[#246B4B] text-white font-bold text-xs flex items-center justify-center">
+              {user.name.charAt(0)}
             </div>
             <div className="min-w-0 flex-1">
-              <div className="text-xs font-bold text-slate-900 truncate">
-                {user?.name}
-              </div>
-              <div className="text-[11px] text-slate-600 capitalize font-medium flex items-center gap-1">
-                {user?.role} · {user?.district || 'Chittoor'}
-              </div>
+              <div className="text-xs font-bold text-[#17211B] truncate">{user.name}</div>
+              <div className="text-[11px] text-[#647067] capitalize">{user.role} · {user.district || 'Chittoor'}</div>
             </div>
           </div>
+        )}
 
-          {/* Persona Menu Popup */}
-          <AnimatePresence>
-            {personaMenuOpen && (
-              <motion.div
-                initial={{ opacity: 0, y: 5 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: 5 }}
-                className="absolute left-0 right-0 top-full mt-2 bg-white rounded-2xl shadow-xl border border-slate-200 p-2 z-50 space-y-1"
-              >
-                {(['farmer', 'buyer', 'organization', 'admin'] as UserRole[]).map((role) => {
-                  const preset = PERSONA_PRESETS[role];
-                  const isCurrent = currentRole === role;
-                  return (
-                    <button
-                      key={role}
-                      onClick={() => handleRoleSwitch(role)}
-                      className={`w-full text-left px-3 py-2 rounded-xl text-xs flex items-center justify-between transition-colors ${
-                        isCurrent
-                          ? 'bg-forest-50 text-forest-800 font-bold border border-forest-200'
-                          : 'hover:bg-slate-100 text-slate-700'
-                      }`}
-                    >
-                      <div>
-                        <div className="capitalize">{preset.name}</div>
-                        <div className="text-[10px] text-slate-600 capitalize">{role} role</div>
-                      </div>
-                      {isCurrent && <span className="w-2 h-2 rounded-full bg-forest-600" />}
-                    </button>
-                  );
-                })}
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
-
-        {/* Navigation items */}
-        <nav className="flex-1 p-3 space-y-1 overflow-y-auto mt-2">
-          {navItems.map(({ path, icon: Icon, label, badge }) => {
-            const active = location.pathname === path;
+        {/* 6 Core Navigation Items */}
+        <nav className="flex-1 p-3 space-y-1 overflow-y-auto">
+          {navItems.map(({ path, icon: Icon, label, altPath, badge }) => {
+            const isActive = location.pathname === path || (altPath && location.pathname === altPath);
             return (
               <Link
                 key={path}
                 to={path}
-                onClick={() => setSidebarOpen(false)}
-                className={`relative flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold transition-all ${
-                  active
-                    ? 'text-forest-800 bg-forest-50 border border-forest-200/80 shadow-xs'
-                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+                onClick={() => setMobileMenuOpen(false)}
+                className={`flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold transition-colors ${
+                  isActive
+                    ? 'bg-[#EAF5EE] text-[#194D38] font-bold border border-[#246B4B]/20'
+                    : 'text-[#647067] hover:text-[#17211B] hover:bg-slate-100'
                 }`}
               >
-                <Icon className={`w-4 h-4 flex-shrink-0 ${active ? 'text-forest-700' : 'text-slate-500'}`} />
-                <span className="flex-1 truncate">{label}</span>
+                <div className="flex items-center gap-2.5">
+                  <Icon className={`w-4 h-4 ${isActive ? 'text-[#246B4B]' : 'text-[#647067]'}`} />
+                  <span>{label}</span>
+                </div>
                 {badge && (
-                  <span
-                    className={`px-1.5 py-0.5 text-[9px] font-extrabold rounded-full ${
-                      badge === 'AI' || badge === 'ADMIN'
-                        ? 'bg-amber-500 text-slate-950 shadow-xs'
-                        : 'bg-forest-600 text-white'
-                    }`}
-                  >
+                  <span className="px-1.5 py-0.5 text-[10px] font-bold bg-[#246B4B] text-white rounded-full">
                     {badge}
                   </span>
                 )}
@@ -206,81 +122,78 @@ export function Layout({ children }: LayoutProps) {
           })}
         </nav>
 
-        {/* Footer controls */}
-        <div className="p-3 border-t border-slate-200 space-y-2 bg-slate-50/50">
-          {/* Audio tour button */}
+        {/* Sidebar Footer: Language, Notifications, Sign Out */}
+        <div className="p-3 border-t border-[#E3E9E4] space-y-2 bg-[#F7F9F7]">
+          {/* Language Toggle */}
           <button
-            onClick={handleAudioTour}
-            className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold border transition-all ${
-              state.isSpeaking
-                ? 'bg-rose-50 border-rose-300 text-rose-700 animate-pulse'
-                : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-100 shadow-xs'
-            }`}
+            onClick={toggleLanguage}
+            className="w-full flex items-center justify-between px-3 py-2 bg-white border border-[#E3E9E4] rounded-xl text-xs font-semibold text-[#17211B] hover:bg-slate-50 transition-colors shadow-2xs"
           >
-            <span className="flex items-center gap-2">
-              {state.isSpeaking ? <VolumeX className="w-3.5 h-3.5" /> : <Volume2 className="w-3.5 h-3.5 text-forest-600" />}
-              {state.isSpeaking ? 'Stop Audio Guidance' : t('speakText')}
+            <span className="flex items-center gap-2 text-[#647067]">
+              <Globe className="w-3.5 h-3.5 text-[#246B4B]" /> Language
             </span>
-            <span className="text-[10px] uppercase font-bold text-slate-600">{state.language}</span>
+            <span className="font-bold text-[#246B4B]">
+              {state.language === 'en' ? 'తెలుగు' : 'English'}
+            </span>
           </button>
 
+          {/* User Sign Out */}
           <button
-            onClick={() => dispatch({ type: 'LOGOUT' })}
-            className="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-medium text-slate-500 hover:text-rose-600 hover:bg-rose-50 transition-colors"
+            onClick={handleSignOut}
+            className="w-full flex items-center gap-2 px-3 py-2 text-xs font-semibold text-[#647067] hover:text-rose-700 hover:bg-rose-50 rounded-xl transition-colors"
           >
             <LogOut className="w-3.5 h-3.5" />
-            {t('navSignOut')}
+            {t('navSignOut') || 'Sign Out'}
           </button>
         </div>
       </aside>
 
-      {/* ── Overlay for mobile ── */}
-      {sidebarOpen && (
+      {/* Mobile Backdrop */}
+      {mobileMenuOpen && (
         <div
-          className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-40 lg:hidden"
-          onClick={() => setSidebarOpen(false)}
+          className="fixed inset-0 bg-slate-900/40 backdrop-blur-xs z-30 lg:hidden"
+          onClick={() => setMobileMenuOpen(false)}
         />
       )}
 
-      {/* ── Main Content Area ── */}
+      {/* ── Main App Shell ── */}
       <div className="flex-1 flex flex-col min-w-0">
-        {/* Top bar */}
-        <header className="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-slate-200 px-4 py-3 flex items-center justify-between shadow-xs">
+        {/* Top Header */}
+        <header className="sticky top-0 z-20 bg-white/95 backdrop-blur-md border-b border-[#E3E9E4] px-4 py-2.5 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <button
-              onClick={() => setSidebarOpen(true)}
-              className="lg:hidden btn-ghost p-1.5 text-slate-700"
+              onClick={() => setMobileMenuOpen(true)}
+              className="lg:hidden p-1.5 text-[#647067] hover:text-[#17211B]"
             >
               <Menu className="w-5 h-5" />
             </button>
             <div className="lg:hidden flex items-center gap-2">
-              <div className="w-7 h-7 rounded-lg bg-forest-600 text-white flex items-center justify-center">
+              <div className="w-7 h-7 rounded-lg bg-[#246B4B] text-white flex items-center justify-center">
                 <Leaf className="w-4 h-4" />
               </div>
-              <span className="font-display font-bold text-sm text-slate-900">Harvest Bridge</span>
+              <span className="font-display font-bold text-sm text-[#17211B]">Harvest Bridge</span>
             </div>
           </div>
 
-          <div className="flex items-center gap-2.5">
-            {/* Language Toggle Button */}
+          <div className="flex items-center gap-2">
+            {/* Language Quick Switch */}
             <button
               onClick={toggleLanguage}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 bg-white text-xs font-bold text-slate-700 hover:bg-slate-50 shadow-xs transition-colors"
-              title="Toggle Telugu / English"
+              className="px-2.5 py-1 text-xs font-bold border border-[#E3E9E4] bg-white rounded-lg text-[#17211B] hover:bg-slate-50 flex items-center gap-1.5"
             >
-              <Globe className="w-3.5 h-3.5 text-forest-600" />
-              <span>{state.language === 'en' ? 'తెలుగు' : 'English'}</span>
+              <Globe className="w-3 h-3 text-[#246B4B]" />
+              <span>{state.language === 'en' ? 'తె' : 'EN'}</span>
             </button>
 
-            {/* Notifications Button */}
+            {/* Notifications */}
             <div className="relative">
               <button
                 onClick={() => setNotifOpen(!notifOpen)}
-                className="btn-ghost p-2 relative text-slate-600 hover:text-slate-900"
+                className="p-1.5 text-[#647067] hover:text-[#17211B] rounded-lg hover:bg-slate-100 relative"
               >
-                <Bell className="w-5 h-5" />
+                <Bell className="w-4 h-4" />
                 {unreadCount > 0 && (
-                  <span className="absolute top-1 right-1 w-4 h-4 bg-rose-500 rounded-full text-[10px] text-white flex items-center justify-center font-bold">
+                  <span className="absolute top-0.5 right-0.5 w-3.5 h-3.5 bg-rose-500 rounded-full text-[9px] text-white font-bold flex items-center justify-center">
                     {unreadCount}
                   </span>
                 )}
@@ -294,12 +207,11 @@ export function Layout({ children }: LayoutProps) {
               )}
             </div>
 
-            {/* Profile Avatar Quick Link */}
+            {/* Profile Avatar */}
             {user && (
               <Link
                 to="/profile"
-                className="w-8 h-8 rounded-full bg-forest-600 text-white text-xs font-bold flex items-center justify-center hover:ring-2 hover:ring-forest-400 transition-all shadow-xs"
-                title={user.name}
+                className="w-7 h-7 rounded-full bg-[#246B4B] text-white text-xs font-bold flex items-center justify-center hover:opacity-90 transition-opacity"
               >
                 {user.name.charAt(0)}
               </Link>
@@ -307,29 +219,25 @@ export function Layout({ children }: LayoutProps) {
           </div>
         </header>
 
-        {/* Page Content */}
-        <main className="flex-1 overflow-auto bg-slate-50">
-          <AnimatePresence mode="wait">
-            <AnimatedPageWrapper key={location.pathname}>
-              {children}
-            </AnimatedPageWrapper>
-          </AnimatePresence>
+        {/* Main Content View */}
+        <main className="flex-1 overflow-auto bg-[#F7F9F7]">
+          {children}
         </main>
 
-        {/* Mobile bottom quick bar */}
-        <nav className="lg:hidden bg-white border-t border-slate-200 grid grid-cols-5 px-1 py-1 safe-area-pb">
-          {navItems.slice(0, 5).map(({ path, icon: Icon, label }) => {
-            const active = location.pathname === path;
+        {/* Mobile Bottom Quick Navigation (6 items) */}
+        <nav className="lg:hidden bg-white border-t border-[#E3E9E4] grid grid-cols-6 px-1 py-1.5 safe-area-pb">
+          {navItems.map(({ path, icon: Icon, label, altPath }) => {
+            const isActive = location.pathname === path || (altPath && location.pathname === altPath);
             return (
               <Link
                 key={path}
                 to={path}
-                className={`flex flex-col items-center gap-0.5 py-1.5 px-1 rounded-lg transition-colors ${
-                  active ? 'text-forest-700 font-bold' : 'text-slate-500'
+                className={`flex flex-col items-center gap-0.5 py-1 px-0.5 rounded-lg text-center ${
+                  isActive ? 'text-[#194D38] font-bold' : 'text-[#647067]'
                 }`}
               >
                 <Icon className="w-4 h-4" />
-                <span className="text-[9px] truncate max-w-[50px]">{label}</span>
+                <span className="text-[9px] truncate max-w-[46px]">{label}</span>
               </Link>
             );
           })}

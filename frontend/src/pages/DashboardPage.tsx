@@ -1,49 +1,41 @@
 // =============================================
-// HARVEST BRIDGE — Farmer & Multi-Role Dashboard
-// Displays actual stored crop listings, surplus alerts, buyer orders, and verified impact
+// HARVEST BRIDGE — Clean, Modern Farmer Dashboard
+// Answers 4 questions:
+// 1. What is happening with my crops?
+// 2. Is any crop at risk of oversupply?
+// 3. Which buyers can I contact?
+// 4. What actions should I take next?
 // =============================================
 
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
 import {
-  Sprout, Zap, TrendingDown, AlertTriangle, Users, BarChart3,
-  ArrowRight, Package, DollarSign, Leaf, Truck, Store, Building2,
-  CheckCircle2, Clock
+  Sprout, AlertTriangle, Users, Truck, ArrowRight,
+  Plus, Sparkles, CheckCircle2, Clock, Calendar,
+  ShieldCheck, ArrowUpRight, DollarSign, Package
 } from 'lucide-react';
 import { useApp } from '../hooks/useApp';
 import { calculateSurplusRisk } from '../services/ai/surplusEngine';
+import { findBuyerMatches } from '../services/ai/matchingEngine';
 import { formatCurrency, formatWeight, getRiskColor } from '../utils/format';
+import { NetEarningsModal } from '../components/NetEarningsModal';
+import type { BuyerMatch } from '../types';
 
 const CROP_EMOJIS: Record<string, string> = {
-  'Tomato': '🍅', 'Onion': '🧅', 'Chilli': '🌶️',
-  'Brinjal': '🍆', 'Capsicum': '🫑', 'Potato': '🥔',
-  'Leafy Greens': '🥬', 'Mango': '🥭', 'Banana': '🍌',
-  'Garlic': '🧄',
-};
-
-const containerVariants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.06,
-    },
-  },
-};
-
-const itemVariants = {
-  hidden: { opacity: 0, y: 15 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.35, ease: 'easeOut' as const } },
+  Tomato: '🍅', Onion: '🧅', Chilli: '🌶️',
+  Brinjal: '🍆', Capsicum: '🫑', Potato: '🥔',
+  'Leafy Greens': '🥬', Mango: '🥭', Banana: '🍌',
+  Garlic: '🧄',
 };
 
 export default function DashboardPage() {
   const { state, t } = useApp();
   const user = state.currentUser;
-  const hour = new Date().getHours();
-  const greeting = hour < 12 ? t('goodMorning') : hour < 17 ? t('goodAfternoon') : t('goodEvening');
+  const [selectedBuyerForCalc, setSelectedBuyerForCalc] = useState<BuyerMatch | null>(null);
 
-  // Real crops from state
-  const myFarmerCrops = (state.crops.length > 0 ? state.crops.slice(0, 3) : []).map((crop) => {
+  // 1. Farmer Crops & Risk Evaluation
+  const activeCrops = state.crops.filter((c) => c.status === 'active');
+  const allCropsWithRisk = state.crops.map((crop) => {
     const qty = crop.availableQuantity ?? crop.totalQuantity ?? crop.quantity ?? 1000;
     const price = crop.estimatedMarketPrice ?? crop.estimatedPrice ?? crop.minAcceptablePrice ?? 20;
     const risk = calculateSurplusRisk({
@@ -56,253 +48,359 @@ export default function DashboardPage() {
     return { ...crop, risk, currentQty: qty, currentPrice: price };
   });
 
-  const highRiskCount = myFarmerCrops.filter((c) => c.risk.surplusRisk >= 70).length;
-  const totalValueAtRisk = myFarmerCrops.reduce((sum, c) => sum + c.risk.valueAtRisk, 0);
-  const activeOrdersCount = state.orders.filter((o) => o.status !== 'completed' && o.status !== 'cancelled').length;
-  const completedOrdersCount = state.orders.filter((o) => o.status === 'completed').length;
+  // Most severe surplus-risk alert
+  const sortedByRisk = [...allCropsWithRisk].sort((a, b) => b.risk.surplusRisk - a.risk.surplusRisk);
+  const topRiskCrop = sortedByRisk[0];
+
+  // 2. Upcoming Harvests within 7 days
+  const upcomingHarvestsCount = state.crops.filter((c) => {
+    const days = Math.ceil((new Date(c.expectedHarvestDate).getTime() - Date.now()) / 86400000);
+    return days >= 0 && days <= 7;
+  }).length;
+
+  // 3. Open Offers
+  const pendingOffersCount = state.offers.filter((o) => o.status === 'pending').length;
+
+  // 4. Estimated Earnings & Confirmed Value
+  const estimatedEarningsTotal = state.orders.reduce((sum, o) => sum + (o.netFarmerEarnings || 0), 0) +
+    activeCrops.reduce((sum, c) => sum + ((c.availableQuantity ?? 1000) * (c.estimatedMarketPrice ?? 20)), 0);
+
+  // Recommended Buyers for active crop
+  const focusCrop = topRiskCrop || allCropsWithRisk[0];
+  const recommendedBuyers = focusCrop
+    ? findBuyerMatches({
+        cropName: focusCrop.cropName,
+        location: focusCrop.location,
+        quantity: focusCrop.currentQty,
+        estimatedPrice: focusCrop.currentPrice,
+      }).slice(0, 3)
+    : [];
+
+  const recentOrders = state.orders.slice(0, 4);
 
   return (
-    <motion.div
-      initial="hidden"
-      animate="visible"
-      variants={containerVariants}
-      className="max-w-6xl mx-auto px-4 py-8 space-y-8 animate-fade-in"
-    >
-      {/* ── Greeting Banner ── */}
-      <motion.div
-        variants={itemVariants}
-        className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-white p-6 md:p-8 rounded-3xl border border-slate-200 shadow-sm relative overflow-hidden"
-      >
-        <div className="absolute top-0 right-0 w-48 h-48 bg-forest-50/60 rounded-full blur-2xl -mr-10 -mt-10 pointer-events-none" />
+    <div className="max-w-6xl mx-auto px-4 py-6 space-y-6 animate-fade-in">
+      {/* ── Top Welcome & Action Header ── */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-white p-5 sm:p-6 rounded-2xl border border-slate-200 shadow-xs">
         <div>
-          <h1 className="font-display text-2xl sm:text-3xl font-bold text-slate-900">
-            {greeting}, {user?.name.split(' ')[0] ?? 'Farmer'} 👋
+          <h1 className="font-display text-xl sm:text-2xl font-bold text-slate-900 flex items-center gap-2">
+            Welcome back, {user?.name.split(' ')[0] ?? 'Farmer'} 👋
           </h1>
-          <p className="text-slate-600 mt-1 text-sm font-medium">
-            {user?.name ?? 'Farmer'} · <span className="capitalize">{user?.role}</span> ({user?.location ?? 'Chittoor District'})
-          </p>
-          <p className="text-forest-700 text-xs mt-1.5 font-bold flex items-center gap-1.5">
-            <span className="w-2.5 h-2.5 rounded-full bg-forest-600 animate-pulse" />
-            {t('subtitleFarmMonitored')}
+          <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
+            {user?.name ?? 'Farmer'} · <span className="capitalize">{user?.role}</span> ({user?.district || 'Chittoor District, AP'})
           </p>
         </div>
 
         <div className="flex items-center gap-2">
-          <Link to="/check-risk" className="btn-primary text-xs py-2.5 px-4 shadow-sm flex items-center gap-1.5">
-            <Zap className="w-4 h-4 text-amber-300" />
-            {t('navCheckRisk')}
+          <Link to="/crops" className="btn-secondary text-xs py-2 px-3 flex items-center gap-1.5 font-bold">
+            <Plus className="w-3.5 h-3.5 text-forest-700" />
+            Add Crop
           </Link>
-          <Link to="/orders" className="btn-secondary text-xs py-2.5 px-4 flex items-center gap-1.5">
-            <Truck className="w-4 h-4 text-slate-600" />
-            {t('navOrders')} ({state.orders.length})
-          </Link>
-        </div>
-      </motion.div>
-
-      {/* ── KPI Cards ── */}
-      <motion.div variants={containerVariants} className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        {[
-          {
-            label: t('kpiActiveCrops'),
-            value: `${state.crops.length} Listed`,
-            icon: Sprout,
-            color: 'text-forest-700',
-            bg: 'bg-emerald-50/70 border-emerald-200',
-          },
-          {
-            label: t('kpiHighRisk'),
-            value: `${highRiskCount} Alerts`,
-            icon: AlertTriangle,
-            color: 'text-rose-700',
-            bg: 'bg-rose-50/70 border-rose-200',
-          },
-          {
-            label: t('kpiValueAtRisk'),
-            value: formatCurrency(totalValueAtRisk),
-            icon: TrendingDown,
-            color: 'text-amber-700',
-            bg: 'bg-amber-50/70 border-amber-200',
-          },
-          {
-            label: 'Active Logistics',
-            value: `${activeOrdersCount} in progress`,
-            icon: Truck,
-            color: 'text-sky-700',
-            bg: 'bg-sky-50/70 border-sky-200',
-          },
-        ].map(({ label, value, icon: Icon, color, bg }) => (
-          <motion.div
-            key={label}
-            variants={itemVariants}
-            whileHover={{ y: -3 }}
-            className={`card border ${bg} transition-all`}
-          >
-            <Icon className={`w-5 h-5 ${color} mb-3`} />
-            <div className={`font-display font-extrabold text-xl sm:text-2xl ${color}`}>
-              {value}
-            </div>
-            <div className="text-slate-600 text-xs font-semibold mt-1">{label}</div>
-          </motion.div>
-        ))}
-      </motion.div>
-
-      {/* ── Crop Health Cards ── */}
-      <motion.div variants={itemVariants} className="space-y-4">
-        <div className="flex items-center justify-between">
-          <h2 className="section-title">Active Crop Surplus Risk Monitors</h2>
-          <Link to="/crops" className="text-xs font-bold text-forest-700 hover:text-forest-800 flex items-center gap-1">
-            {t('viewAll')} ({state.crops.length}) <ArrowRight className="w-3.5 h-3.5" />
+          <Link to="/buyers" className="btn-primary text-xs py-2 px-3.5 flex items-center gap-1.5 shadow-xs">
+            <Users className="w-3.5 h-3.5" />
+            Find Buyers
           </Link>
         </div>
+      </div>
 
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {myFarmerCrops.map((crop) => {
-            const riskLevel = crop.risk.surplusRisk >= 70 ? 'HIGH' : crop.risk.surplusRisk >= 50 ? 'MEDIUM' : 'LOW';
-            const daysLeft = Math.max(0, Math.ceil(
-              (new Date(crop.expectedHarvestDate).getTime() - Date.now()) / 86400000
-            ));
+      {/* ── 4 Essential Summary Cards ── */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5">
+        <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs">
+          <div className="flex items-center justify-between text-slate-500 mb-2">
+            <span className="text-xs font-semibold">Active Crops</span>
+            <Sprout className="w-4 h-4 text-forest-600" />
+          </div>
+          <div className="font-display text-2xl font-bold text-slate-900">{activeCrops.length}</div>
+          <div className="text-[11px] text-slate-500 mt-0.5">{state.crops.length} total registered</div>
+        </div>
 
-            return (
-              <motion.div
-                key={crop._id}
-                whileHover={{ y: -3 }}
-                className={`card border transition-all ${
-                  riskLevel === 'HIGH' ? 'border-rose-300 bg-rose-50/20' :
-                  riskLevel === 'MEDIUM' ? 'border-amber-300 bg-amber-50/20' : 'border-slate-200 bg-white'
+        <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs">
+          <div className="flex items-center justify-between text-slate-500 mb-2">
+            <span className="text-xs font-semibold">Upcoming Harvests</span>
+            <Calendar className="w-4 h-4 text-amber-600" />
+          </div>
+          <div className="font-display text-2xl font-bold text-slate-900">{upcomingHarvestsCount}</div>
+          <div className="text-[11px] text-slate-500 mt-0.5">Due in the next 7 days</div>
+        </div>
+
+        <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs">
+          <div className="flex items-center justify-between text-slate-500 mb-2">
+            <span className="text-xs font-semibold">Open Offers</span>
+            <Package className="w-4 h-4 text-sky-600" />
+          </div>
+          <div className="font-display text-2xl font-bold text-slate-900">{pendingOffersCount}</div>
+          <div className="text-[11px] text-slate-500 mt-0.5">Awaiting response</div>
+        </div>
+
+        <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs">
+          <div className="flex items-center justify-between text-slate-500 mb-2">
+            <span className="text-xs font-semibold">Estimated Earnings</span>
+            <DollarSign className="w-4 h-4 text-forest-600" />
+          </div>
+          <div className="font-display text-2xl font-bold text-forest-800">
+            {formatCurrency(estimatedEarningsTotal)}
+          </div>
+          <div className="text-[11px] text-slate-500 mt-0.5">Inventory & order value</div>
+        </div>
+      </div>
+
+      {/* ── AI Surplus Alert (Most Critical Warning) ── */}
+      {topRiskCrop && (
+        <div
+          className={`p-4 sm:p-5 rounded-2xl border transition-all ${
+            topRiskCrop.risk.surplusRisk >= 70
+              ? 'bg-rose-50/70 border-rose-200 text-rose-950'
+              : topRiskCrop.risk.surplusRisk >= 50
+              ? 'bg-amber-50/70 border-amber-200 text-amber-950'
+              : 'bg-emerald-50/70 border-emerald-200 text-emerald-950'
+          }`}
+        >
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div className="flex items-start gap-3">
+              <div
+                className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 font-bold ${
+                  topRiskCrop.risk.surplusRisk >= 70
+                    ? 'bg-rose-600 text-white'
+                    : 'bg-amber-500 text-slate-950'
                 }`}
               >
-                <div className="flex items-start justify-between mb-3">
-                  <div className="flex items-center gap-2.5">
-                    <span className="text-2xl">{CROP_EMOJIS[crop.cropName] ?? '🌿'}</span>
-                    <div>
-                      <div className="font-bold text-slate-900 text-base">{crop.cropName}</div>
-                      <div className="text-xs text-slate-500 font-medium">{formatWeight(crop.currentQty)}</div>
-                    </div>
-                  </div>
-                  <span className={`text-[10px] font-extrabold px-2.5 py-1 rounded-full border ${
-                    riskLevel === 'HIGH' ? 'bg-rose-100 text-rose-800 border-rose-200' :
-                    riskLevel === 'MEDIUM' ? 'bg-amber-100 text-amber-800 border-amber-200' :
-                    'bg-emerald-100 text-emerald-800 border-emerald-200'
-                  }`}>
-                    {crop.risk.surplusRisk}% RISK
+                <AlertTriangle className="w-5 h-5" />
+              </div>
+              <div>
+                <div className="font-bold text-sm sm:text-base flex items-center gap-2">
+                  <span>
+                    Surplus Alert: {topRiskCrop.cropName} ({topRiskCrop.risk.surplusRisk}% Risk)
+                  </span>
+                  <span className="text-xs px-2 py-0.5 bg-white/80 rounded-md border border-slate-200/80 font-bold">
+                    Rescue Window: {topRiskCrop.risk.rescueWindowEnd || 4} Days Left
                   </span>
                 </div>
+                <p className="text-xs mt-1 text-slate-700 leading-relaxed max-w-2xl">
+                  {topRiskCrop.risk.recommendation} Potential loss at risk: <strong>{formatCurrency(topRiskCrop.risk.valueAtRisk)}</strong>.
+                </p>
+              </div>
+            </div>
 
-                <div className="space-y-1.5 mb-3">
-                  <div className="flex items-center justify-between text-xs font-semibold">
-                    <span className="text-slate-600">Surplus Pressure</span>
-                    <span className={getRiskColor(crop.risk.surplusRisk)}>
-                      {crop.risk.surplusRisk}%
-                    </span>
+            <div className="flex items-center gap-2 sm:self-center">
+              <Link
+                to={`/insights?crop=${topRiskCrop.cropName}&qty=${topRiskCrop.currentQty}&price=${topRiskCrop.currentPrice}`}
+                className="px-3 py-1.5 bg-white hover:bg-slate-50 border border-slate-300 rounded-xl text-xs font-bold text-slate-800 transition-colors shadow-xs"
+              >
+                View Diagnosis
+              </Link>
+              <Link
+                to={`/buyers?crop=${topRiskCrop.cropName}`}
+                className="btn-primary text-xs py-1.5 px-3.5 shadow-xs flex items-center gap-1"
+              >
+                Match Buyers <ArrowRight className="w-3.5 h-3.5" />
+              </Link>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── 2-Column Section: Active Crops Table & Recommended Buyers ── */}
+      <div className="grid lg:grid-cols-12 gap-6 items-start">
+        {/* Left Column: Crop Overview Table (7 cols) */}
+        <div className="lg:col-span-7 bg-white p-5 rounded-2xl border border-slate-200 shadow-xs space-y-3">
+          <div className="flex items-center justify-between pb-2 border-b border-slate-100">
+            <div>
+              <h2 className="font-bold text-slate-900 text-sm">Crop Overview</h2>
+              <p className="text-[11px] text-slate-500">Your active listings and surplus pressure</p>
+            </div>
+            <Link to="/crops" className="text-xs font-bold text-forest-700 hover:underline flex items-center gap-1">
+              Manage All <ArrowRight className="w-3 h-3" />
+            </Link>
+          </div>
+
+          {allCropsWithRisk.length === 0 ? (
+            <div className="py-8 text-center text-xs text-slate-500">
+              No crops listed yet. Click "Add Crop" to register your first harvest.
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full text-xs text-left">
+                <thead>
+                  <tr className="border-b border-slate-100 text-slate-400 font-semibold uppercase text-[10px]">
+                    <th className="pb-2 font-semibold">Crop</th>
+                    <th className="pb-2 font-semibold">Quantity</th>
+                    <th className="pb-2 font-semibold">Harvest Due</th>
+                    <th className="pb-2 font-semibold">Surplus Risk</th>
+                    <th className="pb-2 font-semibold text-right">Action</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100 font-medium">
+                  {allCropsWithRisk.slice(0, 4).map((crop) => {
+                    const daysLeft = Math.max(
+                      0,
+                      Math.ceil((new Date(crop.expectedHarvestDate).getTime() - Date.now()) / 86400000)
+                    );
+                    return (
+                      <tr key={crop._id} className="hover:bg-slate-50/70 transition-colors">
+                        <td className="py-2.5">
+                          <div className="flex items-center gap-2">
+                            <span className="text-base">{CROP_EMOJIS[crop.cropName] ?? '🌱'}</span>
+                            <div>
+                              <div className="font-bold text-slate-900">{crop.cropName}</div>
+                              <div className="text-[10px] text-slate-400">{crop.location}</div>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="py-2.5 text-slate-700 font-semibold">{formatWeight(crop.currentQty)}</td>
+                        <td className="py-2.5 text-slate-600">
+                          {daysLeft === 0 ? 'Today' : `${daysLeft} days`}
+                        </td>
+                        <td className="py-2.5">
+                          <span
+                            className={`px-2 py-0.5 rounded-full text-[10px] font-extrabold border ${
+                              crop.risk.surplusRisk >= 70
+                                ? 'bg-rose-50 text-rose-700 border-rose-200'
+                                : crop.risk.surplusRisk >= 50
+                                ? 'bg-amber-50 text-amber-700 border-amber-200'
+                                : 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                            }`}
+                          >
+                            {crop.risk.surplusRisk}%
+                          </span>
+                        </td>
+                        <td className="py-2.5 text-right">
+                          <Link
+                            to={`/buyers?crop=${crop.cropName}`}
+                            className="text-forest-700 font-bold hover:underline"
+                          >
+                            Find Buyers
+                          </Link>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+
+        {/* Right Column: Recommended Buyers (5 cols) */}
+        <div className="lg:col-span-5 bg-white p-5 rounded-2xl border border-slate-200 shadow-xs space-y-3">
+          <div className="flex items-center justify-between pb-2 border-b border-slate-100">
+            <div>
+              <h2 className="font-bold text-slate-900 text-sm">Recommended Buyers</h2>
+              <p className="text-[11px] text-slate-500">Verified nearby buyers for {focusCrop?.cropName || 'Crops'}</p>
+            </div>
+            <Link to="/buyers" className="text-xs font-bold text-forest-700 hover:underline flex items-center gap-1">
+              View All <ArrowRight className="w-3 h-3" />
+            </Link>
+          </div>
+
+          {recommendedBuyers.length === 0 ? (
+            <div className="py-8 text-center text-xs text-slate-500">
+              No matching buyers found for current crop parameters.
+            </div>
+          ) : (
+            <div className="space-y-2.5">
+              {recommendedBuyers.map((match) => (
+                <div
+                  key={match.buyerId || match.buyer?._id}
+                  className="p-3 rounded-xl border border-slate-200 bg-slate-50/50 hover:bg-slate-50 transition-colors flex items-center justify-between gap-3 text-xs"
+                >
+                  <div>
+                    <div className="font-bold text-slate-900">{match.buyerName || match.buyer?.name}</div>
+                    <div className="text-[11px] text-slate-500 mt-0.5">
+                      {match.distanceKm || match.distance || 15} km away · Indicative: ₹{match.indicativePricePerKg}/kg
+                    </div>
                   </div>
-                  <div className="h-2 rounded-full bg-slate-200 overflow-hidden">
-                    <div
-                      className="h-full rounded-full transition-all duration-700"
-                      style={{
-                        width: `${crop.risk.surplusRisk}%`,
-                        backgroundColor: crop.risk.surplusRisk >= 70 ? '#ef4444' : crop.risk.surplusRisk >= 50 ? '#f59e0b' : '#22c55e',
-                      }}
-                    />
+
+                  <div className="flex items-center gap-1.5">
+                    <button
+                      onClick={() => setSelectedBuyerForCalc(match)}
+                      className="px-2.5 py-1 bg-white border border-slate-200 text-forest-700 hover:bg-forest-50 rounded-lg font-bold text-[11px] shadow-2xs"
+                    >
+                      Net Calc
+                    </button>
+                    <Link
+                      to={`/buyers?crop=${focusCrop?.cropName}`}
+                      className="px-2.5 py-1 bg-forest-600 text-white hover:bg-forest-700 rounded-lg font-bold text-[11px] shadow-2xs"
+                    >
+                      Offer
+                    </Link>
                   </div>
                 </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
 
-                <div className="grid grid-cols-2 gap-2 mb-3 text-xs bg-slate-100/80 p-2.5 rounded-xl border border-slate-200/60">
-                  <div>
-                    <div className="text-slate-500 font-medium">Harvest in</div>
-                    <div className="text-slate-900 font-extrabold">{daysLeft} days</div>
+      {/* ── Recent Orders Section ── */}
+      <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs space-y-3">
+        <div className="flex items-center justify-between pb-2 border-b border-slate-100">
+          <div>
+            <h2 className="font-bold text-slate-900 text-sm flex items-center gap-2">
+              <Truck className="w-4 h-4 text-forest-600" />
+              Recent Orders & Collections
+            </h2>
+            <p className="text-[11px] text-slate-500">Live order fulfillment and verified transactions</p>
+          </div>
+          <Link to="/orders" className="text-xs font-bold text-forest-700 hover:underline flex items-center gap-1">
+            View All ({state.orders.length}) <ArrowRight className="w-3 h-3" />
+          </Link>
+        </div>
+
+        {recentOrders.length === 0 ? (
+          <div className="py-6 text-center text-xs text-slate-500">
+            No orders created yet. Submit and accept buyer offers to begin farm collections.
+          </div>
+        ) : (
+          <div className="divide-y divide-slate-100">
+            {recentOrders.map((order) => (
+              <div key={order._id} className="py-2.5 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-7 h-7 rounded-lg bg-forest-50 border border-forest-200 flex items-center justify-center font-bold text-forest-700 text-sm">
+                    📦
                   </div>
                   <div>
-                    <div className="text-slate-500 font-medium">Urgency</div>
-                    <div className={`font-extrabold ${crop.risk.urgency === 'HIGH' || crop.risk.urgency === 'CRITICAL' ? 'text-rose-700' : 'text-amber-700'}`}>
-                      {crop.risk.urgency}
+                    <div className="font-bold text-slate-900">
+                      {order.cropName} ({formatWeight(order.quantityKg)})
+                    </div>
+                    <div className="text-[11px] text-slate-500">
+                      Buyer: {order.buyerName} · Date: {order.scheduledDate}
                     </div>
                   </div>
                 </div>
 
-                <p className="text-[11px] text-slate-600 mb-4 leading-relaxed line-clamp-2">
-                  {crop.risk.recommendation}
-                </p>
-
-                <div className="flex gap-2">
-                  <Link
-                    to={`/check-risk?crop=${crop.cropName}&location=${encodeURIComponent(crop.location)}&qty=${crop.currentQty}&price=${crop.currentPrice}`}
-                    className="btn-primary text-xs py-2 flex-1 font-semibold text-center"
+                <div className="flex items-center gap-3">
+                  <div className="text-right font-extrabold text-forest-800">
+                    {formatCurrency(order.netFarmerEarnings)}
+                  </div>
+                  <span
+                    className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                      order.status === 'completed'
+                        ? 'bg-emerald-100 text-emerald-800'
+                        : order.status === 'in_transit'
+                        ? 'bg-sky-100 text-sky-800'
+                        : 'bg-amber-100 text-amber-800'
+                    }`}
                   >
-                    Scan Surplus
-                  </Link>
-                  <Link
-                    to="/matches"
-                    className="btn-secondary text-xs py-2 flex-1 font-semibold text-center"
-                  >
-                    Matches
-                  </Link>
+                    {order.status.replace('_', ' ').toUpperCase()}
+                  </span>
                 </div>
-              </motion.div>
-            );
-          })}
-        </div>
-      </motion.div>
-
-      {/* ── Active Orders & Logistics ── */}
-      <motion.div variants={itemVariants} className="card space-y-4">
-        <div className="flex items-center justify-between pb-3 border-b border-slate-100">
-          <div>
-            <h2 className="font-bold text-slate-900 text-base flex items-center gap-2">
-              <Truck className="w-5 h-5 text-forest-600" /> Active Orders & Collections
-            </h2>
-            <p className="text-xs text-slate-500">Live order fulfillment and farm-gate logistics status</p>
+              </div>
+            ))}
           </div>
-          <Link to="/orders" className="text-xs font-bold text-forest-700 hover:text-forest-800 flex items-center gap-1">
-            View All ({state.orders.length}) <ArrowRight className="w-3.5 h-3.5" />
-          </Link>
-        </div>
+        )}
+      </div>
 
-        <div className="divide-y divide-slate-100">
-          {state.orders.slice(0, 3).map((order) => (
-            <div key={order._id} className="py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-xl bg-forest-50 border border-forest-200 flex items-center justify-center font-bold text-forest-700">
-                  📦
-                </div>
-                <div>
-                  <div className="font-bold text-slate-900">{order.cropName} ({formatWeight(order.quantityKg)})</div>
-                  <div className="text-slate-500 mt-0.5">Buyer: {order.buyerName} · {order.scheduledDate}</div>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-3">
-                <div className="text-right font-bold text-forest-700">
-                  {formatCurrency(order.netFarmerEarnings)}
-                </div>
-                <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold ${
-                  order.status === 'completed' ? 'bg-emerald-100 text-emerald-800' :
-                  order.status === 'in_transit' ? 'bg-sky-100 text-sky-800' : 'bg-amber-100 text-amber-800'
-                }`}>
-                  {order.status.replace('_', ' ')}
-                </span>
-              </div>
-            </div>
-          ))}
-        </div>
-      </motion.div>
-
-      {/* ── Quick Portals ── */}
-      <motion.div variants={itemVariants} className="grid sm:grid-cols-4 gap-4">
-        {[
-          { to: '/market', icon: Store, label: 'Mandi Intelligence', desc: 'Real APMC benchmarks', color: 'text-forest-700' },
-          { to: '/rescue', icon: Building2, label: 'Rescue Network', desc: 'Verified NGO matches', color: 'text-rose-600' },
-          { to: '/radar', icon: BarChart3, label: 'Surplus Radar™', desc: '7-day district heatmap', color: 'text-sky-600' },
-          { to: '/assistant', icon: Users, label: 'AI Assistant', desc: 'Bilingual voice guide', color: 'text-purple-600' },
-        ].map(({ to, icon: Icon, label, desc, color }) => (
-          <Link key={to} to={to} className="card-hover flex items-center gap-3.5 p-4">
-            <Icon className={`w-8 h-8 ${color} flex-shrink-0`} />
-            <div>
-              <div className="font-bold text-slate-900 text-xs">{label}</div>
-              <div className="text-[11px] text-slate-500 mt-0.5">{desc}</div>
-            </div>
-          </Link>
-        ))}
-      </motion.div>
-    </motion.div>
+      {/* Net Earnings Calculator Modal */}
+      {selectedBuyerForCalc && (
+        <NetEarningsModal
+          isOpen={Boolean(selectedBuyerForCalc)}
+          cropName={focusCrop?.cropName || 'Tomato'}
+          quantityKg={focusCrop?.currentQty || 2000}
+          initialPricePerKg={selectedBuyerForCalc.indicativePricePerKg || 21}
+          initialDistanceKm={selectedBuyerForCalc.distanceKm || 20}
+          onClose={() => setSelectedBuyerForCalc(null)}
+        />
+      )}
+    </div>
   );
 }
