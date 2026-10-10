@@ -81,22 +81,34 @@ export default function DashboardPage() {
   return (
     <div className="max-w-6xl mx-auto px-4 py-6 space-y-6 animate-fade-in">
       {/* ── Top Welcome & Action Header ── */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-white p-5 sm:p-6 rounded-2xl border border-slate-200 shadow-xs">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-white p-5 sm:p-6 rounded-2xl border border-slate-200/90 shadow-xs relative overflow-hidden">
+        <div className="absolute -top-12 -right-12 w-48 h-48 bg-gradient-to-br from-ai-400/10 to-forest-500/10 rounded-full blur-2xl pointer-events-none" />
+        
         <div>
-          <h1 className="font-display text-xl sm:text-2xl font-bold text-slate-900 flex items-center gap-2">
-            Welcome back, {user?.name.split(' ')[0] ?? 'Farmer'} 👋
-          </h1>
-          <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
-            {user?.name ?? 'Farmer'} · <span className="capitalize">{user?.role}</span> ({user?.district || 'Chittoor District, AP'})
+          <div className="flex items-center gap-2">
+            <h1 className="font-display text-xl sm:text-2xl font-bold text-slate-900 flex items-center gap-2">
+              Welcome back, {user?.name.split(' ')[0] ?? 'Farmer'} 👋
+            </h1>
+            <span className="hidden md:inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-forest-50 text-forest-800 border border-forest-200 shadow-2xs">
+              <span className="w-1.5 h-1.5 rounded-full bg-forest-600 animate-pulse" />
+              Verified Farmer
+            </span>
+          </div>
+          <p className="text-xs sm:text-sm text-slate-500 mt-1 flex items-center gap-2">
+            <span>{user?.name ?? 'Farmer'}</span>
+            <span>•</span>
+            <span className="capitalize font-medium text-forest-700">{user?.role}</span>
+            <span>•</span>
+            <span>{user?.district || 'Chittoor District, AP'}</span>
           </p>
         </div>
 
-        <div className="flex items-center gap-2">
-          <Link to="/crops" className="btn-secondary text-xs py-2 px-3 flex items-center gap-1.5 font-bold">
+        <div className="flex items-center gap-2 z-10">
+          <Link to="/crops" className="btn-secondary text-xs py-2.5 px-3.5 flex items-center gap-1.5 font-bold shadow-2xs">
             <Plus className="w-3.5 h-3.5 text-forest-700" />
             Add Crop
           </Link>
-          <Link to="/buyers" className="btn-primary text-xs py-2 px-3.5 flex items-center gap-1.5 shadow-xs">
+          <Link to="/buyers" className="btn-ai text-xs py-2.5 px-4 flex items-center gap-1.5 shadow-xs">
             <Users className="w-3.5 h-3.5" />
             Find Buyers
           </Link>
@@ -105,39 +117,51 @@ export default function DashboardPage() {
 
       {/* ── 4 Essential Summary Cards ── */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5">
-        <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs card-hover-lift">
+        <div className="bg-white p-4 rounded-2xl border border-slate-200/90 shadow-xs card-hover-lift relative overflow-hidden">
+          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-forest-600 to-forest-400" />
           <div className="flex items-center justify-between text-slate-500 mb-2">
             <span className="text-xs font-semibold">Active Crops</span>
-            <Sprout className="w-4 h-4 text-forest-600" />
+            <div className="p-1.5 rounded-lg bg-forest-50 text-forest-700">
+              <Sprout className="w-4 h-4" />
+            </div>
           </div>
           <div className="font-display text-2xl font-bold text-slate-900">{activeCrops.length}</div>
           <div className="text-[11px] text-slate-500 mt-0.5">{state.crops.length} total registered</div>
         </div>
 
-        <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs card-hover-lift">
+        <div className="bg-white p-4 rounded-2xl border border-slate-200/90 shadow-xs card-hover-lift relative overflow-hidden">
+          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-amber-500 to-amber-300" />
           <div className="flex items-center justify-between text-slate-500 mb-2">
             <span className="text-xs font-semibold">Upcoming Harvests</span>
-            <Calendar className="w-4 h-4 text-amber-600" />
+            <div className="p-1.5 rounded-lg bg-amber-50 text-amber-600">
+              <Calendar className="w-4 h-4" />
+            </div>
           </div>
           <div className="font-display text-2xl font-bold text-slate-900">{upcomingHarvestsCount}</div>
-          <div className="text-[11px] text-slate-500 mt-0.5">Due in the next 7 days</div>
+          <div className="text-[11px] text-slate-500 mt-0.5">Due in next 7 days</div>
         </div>
 
-        <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs card-hover-lift">
+        <div className="bg-white p-4 rounded-2xl border border-slate-200/90 shadow-xs card-hover-lift relative overflow-hidden">
+          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-ai-600 to-cyber-500" />
           <div className="flex items-center justify-between text-slate-500 mb-2">
             <span className="text-xs font-semibold">Open Offers</span>
-            <Package className="w-4 h-4 text-sky-600" />
+            <div className="p-1.5 rounded-lg bg-ai-50 text-ai-700">
+              <Package className="w-4 h-4" />
+            </div>
           </div>
           <div className="font-display text-2xl font-bold text-slate-900">{pendingOffersCount}</div>
           <div className="text-[11px] text-slate-500 mt-0.5">Awaiting response</div>
         </div>
 
-        <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs card-hover-lift">
+        <div className="bg-white p-4 rounded-2xl border border-slate-200/90 shadow-xs card-hover-lift relative overflow-hidden">
+          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-forest-700 to-ai-600" />
           <div className="flex items-center justify-between text-slate-500 mb-2">
-            <span className="text-xs font-semibold">Estimated Earnings</span>
-            <DollarSign className="w-4 h-4 text-forest-600" />
+            <span className="text-xs font-semibold">Estimated Value</span>
+            <div className="p-1.5 rounded-lg bg-forest-50 text-forest-700">
+              <DollarSign className="w-4 h-4" />
+            </div>
           </div>
-          <div className="font-display text-2xl font-bold text-forest-800">
+          <div className="font-display text-2xl font-bold text-forest-900">
             {formatCurrency(estimatedEarningsTotal)}
           </div>
           <div className="text-[11px] text-slate-500 mt-0.5">Inventory & order value</div>
@@ -147,36 +171,36 @@ export default function DashboardPage() {
       {/* ── AI Surplus Alert (Most Critical Warning) ── */}
       {topRiskCrop && (
         <div
-          className={`p-4 sm:p-5 rounded-2xl border transition-all ${
+          className={`p-4 sm:p-5 rounded-2xl border transition-all shadow-xs ${
             topRiskCrop.risk.surplusRisk >= 70
-              ? 'bg-rose-50/70 border-rose-200 text-rose-950'
+              ? 'bg-gradient-to-r from-rose-50/90 via-rose-50/50 to-white border-rose-200 text-rose-950'
               : topRiskCrop.risk.surplusRisk >= 50
-              ? 'bg-amber-50/70 border-amber-200 text-amber-950'
-              : 'bg-emerald-50/70 border-emerald-200 text-emerald-950'
+              ? 'bg-gradient-to-r from-amber-50/90 via-amber-50/50 to-white border-amber-200 text-amber-950'
+              : 'bg-gradient-to-r from-emerald-50/90 via-emerald-50/50 to-white border-emerald-200 text-emerald-950'
           }`}
         >
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div className="flex items-start gap-3">
               <div
-                className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 font-bold ${
+                className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 font-bold shadow-xs ${
                   topRiskCrop.risk.surplusRisk >= 70
                     ? 'bg-rose-600 text-white'
-                    : 'bg-amber-500 text-slate-950'
+                    : 'bg-amber-500 text-white'
                 }`}
               >
                 <AlertTriangle className="w-5 h-5" />
               </div>
               <div>
-                <div className="font-bold text-sm sm:text-base flex items-center gap-2">
+                <div className="font-bold text-sm sm:text-base flex items-center gap-2 flex-wrap">
                   <span>
                     Surplus Alert: {topRiskCrop.cropName} ({topRiskCrop.risk.surplusRisk}% Risk)
                   </span>
-                  <span className="text-xs px-2 py-0.5 bg-white/80 rounded-md border border-slate-200/80 font-bold">
+                  <span className="text-[11px] px-2.5 py-0.5 bg-white rounded-md border border-slate-200/80 font-bold text-slate-800 shadow-2xs">
                     Rescue Window: {topRiskCrop.risk.rescueWindowEnd || 4} Days Left
                   </span>
                 </div>
                 <p className="text-xs mt-1 text-slate-700 leading-relaxed max-w-2xl">
-                  {topRiskCrop.risk.recommendation} Potential loss at risk: <strong>{formatCurrency(topRiskCrop.risk.valueAtRisk)}</strong>.
+                  {topRiskCrop.risk.recommendation} Potential value at risk: <strong className="text-slate-900">{formatCurrency(topRiskCrop.risk.valueAtRisk)}</strong>.
                 </p>
               </div>
             </div>
@@ -184,13 +208,13 @@ export default function DashboardPage() {
             <div className="flex items-center gap-2 sm:self-center">
               <Link
                 to={`/insights?crop=${topRiskCrop.cropName}&qty=${topRiskCrop.currentQty}&price=${topRiskCrop.currentPrice}`}
-                className="px-3 py-1.5 bg-white hover:bg-slate-50 border border-slate-300 rounded-xl text-xs font-bold text-slate-800 transition-colors shadow-xs"
+                className="px-3 py-2 bg-white hover:bg-slate-50 border border-slate-300 rounded-xl text-xs font-bold text-slate-800 transition-colors shadow-2xs"
               >
                 View Diagnosis
               </Link>
               <Link
                 to={`/buyers?crop=${topRiskCrop.cropName}`}
-                className="btn-primary text-xs py-1.5 px-3.5 shadow-xs flex items-center gap-1"
+                className="btn-primary text-xs py-2 px-3.5 shadow-xs flex items-center gap-1"
               >
                 Match Buyers <ArrowRight className="w-3.5 h-3.5" />
               </Link>
@@ -202,13 +226,13 @@ export default function DashboardPage() {
       {/* ── 2-Column Section: Active Crops Table & Recommended Buyers ── */}
       <div className="grid lg:grid-cols-12 gap-6 items-start">
         {/* Left Column: Crop Overview Table (7 cols) */}
-        <div className="lg:col-span-7 bg-white p-5 rounded-2xl border border-slate-200 shadow-xs space-y-3">
+        <div className="lg:col-span-7 bg-white p-5 rounded-2xl border border-slate-200/90 shadow-xs space-y-3">
           <div className="flex items-center justify-between pb-2 border-b border-slate-100">
             <div>
               <h2 className="font-bold text-slate-900 text-sm">Crop Overview</h2>
-              <p className="text-[11px] text-slate-500">Your active listings and surplus pressure</p>
+              <p className="text-[11px] text-slate-500">Your active listings and AI surplus risk pressure</p>
             </div>
-            <Link to="/crops" className="text-xs font-bold text-forest-700 hover:underline flex items-center gap-1">
+            <Link to="/crops" className="text-xs font-bold text-forest-700 hover:text-forest-800 hover:underline flex items-center gap-1">
               Manage All <ArrowRight className="w-3 h-3" />
             </Link>
           </div>
@@ -252,7 +276,7 @@ export default function DashboardPage() {
                         </td>
                         <td className="py-2.5">
                           <span
-                            className={`px-2 py-0.5 rounded-full text-[10px] font-extrabold border ${
+                            className={`px-2 py-0.5 rounded-full text-[10px] font-extrabold border shadow-2xs ${
                               crop.risk.surplusRisk >= 70
                                 ? 'bg-rose-50 text-rose-700 border-rose-200'
                                 : crop.risk.surplusRisk >= 50
@@ -266,7 +290,7 @@ export default function DashboardPage() {
                         <td className="py-2.5 text-right">
                           <Link
                             to={`/buyers?crop=${crop.cropName}`}
-                            className="text-forest-700 font-bold hover:underline"
+                            className="text-ai-700 font-bold hover:text-ai-800 hover:underline"
                           >
                             Find Buyers
                           </Link>
@@ -281,13 +305,13 @@ export default function DashboardPage() {
         </div>
 
         {/* Right Column: Recommended Buyers (5 cols) */}
-        <div className="lg:col-span-5 bg-white p-5 rounded-2xl border border-slate-200 shadow-xs space-y-3">
+        <div className="lg:col-span-5 bg-white p-5 rounded-2xl border border-slate-200/90 shadow-xs space-y-3">
           <div className="flex items-center justify-between pb-2 border-b border-slate-100">
             <div>
               <h2 className="font-bold text-slate-900 text-sm">Recommended Buyers</h2>
               <p className="text-[11px] text-slate-500">Verified nearby buyers for {focusCrop?.cropName || 'Crops'}</p>
             </div>
-            <Link to="/buyers" className="text-xs font-bold text-forest-700 hover:underline flex items-center gap-1">
+            <Link to="/buyers" className="text-xs font-bold text-forest-700 hover:text-forest-800 hover:underline flex items-center gap-1">
               View All <ArrowRight className="w-3 h-3" />
             </Link>
           </div>
@@ -301,12 +325,12 @@ export default function DashboardPage() {
               {recommendedBuyers.map((match) => (
                 <div
                   key={match.buyerId || match.buyer?._id}
-                  className="p-3 rounded-xl border border-slate-200 bg-slate-50/50 hover:bg-slate-50 transition-colors flex items-center justify-between gap-3 text-xs"
+                  className="p-3 rounded-xl border border-slate-200/90 bg-slate-50/60 hover:bg-white hover:border-ai-300 transition-all flex items-center justify-between gap-3 text-xs shadow-2xs hover:shadow-xs"
                 >
                   <div>
                     <div className="font-bold text-slate-900">{match.buyerName || match.buyer?.name}</div>
                     <div className="text-[11px] text-slate-500 mt-0.5">
-                      {match.distanceKm || match.distance || 15} km away · Indicative: ₹{match.indicativePricePerKg}/kg
+                      {match.distanceKm || match.distance || 15} km away · Indicative: <strong className="text-slate-800">₹{match.indicativePricePerKg}/kg</strong>
                     </div>
                   </div>
 
@@ -319,7 +343,7 @@ export default function DashboardPage() {
                     </button>
                     <Link
                       to={`/buyers?crop=${focusCrop?.cropName}`}
-                      className="px-2.5 py-1 bg-forest-600 text-white hover:bg-forest-700 rounded-lg font-bold text-[11px] shadow-2xs"
+                      className="px-2.5 py-1 bg-gradient-to-r from-forest-700 to-ai-600 text-white hover:from-forest-800 hover:to-ai-700 rounded-lg font-bold text-[11px] shadow-2xs"
                     >
                       Offer
                     </Link>

@@ -270,35 +270,44 @@ export default function AssistantPage() {
   return (
     <div className="max-w-4xl mx-auto px-4 py-4 h-[calc(100vh-4.5rem)] flex flex-col animate-fade-in">
       {/* Header */}
-      <div className="mb-3">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="font-display text-xl sm:text-2xl font-bold text-slate-900 flex items-center gap-2">
-              <Bot className="w-6 h-6 text-forest-600" />
-              Grounded AI Agricultural Assistant
-            </h1>
-            <p className="text-slate-500 text-xs mt-0.5">
-              Knowledge base citing ICAR, Department of Agricultural Marketing AP, and e-NAM guidelines
-            </p>
+      <div className="mb-3 bg-white p-3.5 sm:p-4 rounded-2xl border border-slate-200/90 shadow-2xs">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-forest-800 via-forest-700 to-ai-600 text-white flex items-center justify-center shadow-glow-forest flex-shrink-0">
+              <Bot className="w-5 h-5 text-ai-200" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <h1 className="font-display text-base sm:text-lg font-bold text-slate-900">
+                  Grounded AI Agricultural Assistant
+                </h1>
+                <span className="hidden sm:inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-ai-50 text-ai-700 border border-ai-200 shadow-2xs">
+                  <Sparkles className="w-2.5 h-2.5 text-ai-600" /> Neural v2.5
+                </span>
+              </div>
+              <p className="text-slate-500 text-[11px] sm:text-xs">
+                Verified with ICAR, AP Agricultural Marketing Board & e-NAM Mandi Standards
+              </p>
+            </div>
           </div>
 
           {/* Language toggle */}
-          <div className="flex items-center gap-1 bg-slate-200/80 rounded-xl p-1 shadow-inner">
+          <div className="flex items-center gap-1 bg-slate-100/90 rounded-xl p-1 shadow-inner self-start sm:self-auto">
             <button
               onClick={() => setLanguage('en')}
-              className={`px-3 py-1 rounded-lg text-xs font-bold transition-colors ${
-                language === 'en' ? 'bg-forest-600 text-white shadow-xs' : 'text-slate-600 hover:text-slate-900'
+              className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${
+                language === 'en' ? 'bg-forest-700 text-white shadow-xs' : 'text-slate-600 hover:text-slate-900'
               }`}
             >
-              EN
+              English
             </button>
             <button
               onClick={() => setLanguage('te')}
-              className={`px-3 py-1 rounded-lg text-xs font-bold transition-colors ${
-                language === 'te' ? 'bg-forest-600 text-white shadow-xs' : 'text-slate-600 hover:text-slate-900'
+              className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${
+                language === 'te' ? 'bg-forest-700 text-white shadow-xs' : 'text-slate-600 hover:text-slate-900'
               }`}
             >
-              తె
+              తెలుగు
             </button>
           </div>
         </div>
@@ -310,9 +319,10 @@ export default function AssistantPage() {
           <button
             key={prompt}
             onClick={() => handleSend(prompt)}
-            className="px-3 py-1.5 bg-white hover:bg-emerald-50 hover:border-emerald-300 border border-slate-200 rounded-full text-xs font-semibold text-slate-700 transition-all shadow-xs text-left"
+            className="px-3 py-1.5 bg-white hover:bg-ai-50/70 hover:border-ai-300 border border-slate-200 rounded-full text-xs font-semibold text-slate-700 transition-all shadow-2xs hover:shadow-xs text-left flex items-center gap-1.5"
           >
-            {prompt}
+            <Sparkles className="w-3 h-3 text-ai-600 flex-shrink-0" />
+            <span>{prompt}</span>
           </button>
         ))}
       </div>
@@ -326,17 +336,19 @@ export default function AssistantPage() {
           >
             <div
               className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 shadow-xs ${
-                msg.role === 'assistant' ? 'bg-forest-600 text-white ring-2 ring-forest-100' : 'bg-slate-700 text-white'
+                msg.role === 'assistant'
+                  ? 'bg-gradient-to-br from-forest-800 to-ai-600 text-white ring-2 ring-ai-100 shadow-glow-forest'
+                  : 'bg-slate-800 text-white shadow-2xs'
               }`}
             >
-              {msg.role === 'assistant' ? <Bot className="w-4 h-4" /> : <User className="w-4 h-4" />}
+              {msg.role === 'assistant' ? <Bot className="w-4 h-4 text-ai-200" /> : <User className="w-4 h-4" />}
             </div>
 
             <div
-              className={`max-w-[85%] px-4 py-3 rounded-2xl shadow-xs space-y-2 ${
+              className={`max-w-[85%] px-4 py-3.5 rounded-2xl shadow-xs space-y-2 ${
                 msg.role === 'user'
-                  ? 'bg-forest-600 text-white rounded-tr-xs font-medium'
-                  : 'bg-white border border-slate-200 text-slate-800 rounded-tl-xs'
+                  ? 'bg-gradient-to-r from-forest-800 to-forest-700 text-white rounded-tr-xs font-medium'
+                  : 'bg-white border border-slate-200/90 text-slate-800 rounded-tl-xs shadow-2xs'
               }`}
             >
               {msg.role === 'assistant' ? (
@@ -351,10 +363,10 @@ export default function AssistantPage() {
                     onClick={() => handleReadMessage(msg.content)}
                     className="flex items-center gap-1 font-semibold text-forest-700 hover:text-forest-800 hover:underline"
                   >
-                    <Volume2 className="w-3.5 h-3.5" /> Speak Readout
+                    <Volume2 className="w-3.5 h-3.5 text-ai-600" /> Speak Readout
                   </button>
                   <span className="flex items-center gap-1">
-                    <ShieldCheck className="w-3 h-3 text-emerald-600" /> Factual Grounded Source
+                    <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" /> Grounded Neural Source
                   </span>
                 </div>
               )}
@@ -364,13 +376,13 @@ export default function AssistantPage() {
 
         {isLoading && (
           <div className="flex gap-3">
-            <div className="w-8 h-8 rounded-full bg-forest-600 text-white flex items-center justify-center ring-2 ring-forest-100">
-              <Bot className="w-4 h-4" />
+            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-forest-800 to-ai-600 text-white flex items-center justify-center ring-2 ring-ai-100 shadow-glow-forest">
+              <Bot className="w-4 h-4 text-ai-200" />
             </div>
-            <div className="bg-white border border-slate-200 px-4 py-3 rounded-2xl rounded-tl-xs flex items-center gap-2 shadow-xs">
-              <Loader2 className="w-4 h-4 text-forest-600 animate-spin" />
-              <span className="text-slate-600 text-xs font-medium flex items-center gap-1">
-                <Sparkles className="w-3.5 h-3.5 text-amber-500 animate-pulse" />
+            <div className="bg-white border border-slate-200 px-4 py-3 rounded-2xl rounded-tl-xs flex items-center gap-2 shadow-2xs">
+              <Loader2 className="w-4 h-4 text-ai-600 animate-spin" />
+              <span className="text-slate-600 text-xs font-medium flex items-center gap-1.5">
+                <Sparkles className="w-3.5 h-3.5 text-ai-500 animate-pulse" />
                 Synthesizing grounded agricultural advisory...
               </span>
             </div>
@@ -387,9 +399,9 @@ export default function AssistantPage() {
           title={voiceSupported ? 'Voice input' : 'Voice not supported in this browser'}
           className={`w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0 transition-all ${
             isListening
-              ? 'bg-rose-600 text-white animate-pulse'
+              ? 'bg-rose-600 text-white animate-pulse shadow-lg'
               : voiceSupported
-              ? 'bg-white border border-slate-300 text-forest-700 hover:bg-slate-50 shadow-xs'
+              ? 'bg-white border border-slate-300 text-forest-700 hover:bg-slate-50 shadow-2xs'
               : 'bg-slate-100 border border-slate-200 text-slate-400 cursor-not-allowed'
           }`}
         >
@@ -410,13 +422,13 @@ export default function AssistantPage() {
               ? 'మీ ప్రశ్న టైప్ చేయండి (ఉదా: "హాయ్", "నికర ఆదాయం లెక్కింపు")...'
               : 'Ask about surplus risk, net earnings, storage techniques, or type "hi"...'
           }
-          className="input flex-1 text-xs sm:text-sm"
+          className="input flex-1 text-xs sm:text-sm focus:ring-ai-500/80 focus:border-ai-500"
         />
 
         <button
           onClick={() => handleSend()}
           disabled={!input.trim() || isLoading}
-          className="btn-primary w-12 h-12 p-0 flex-shrink-0 rounded-2xl flex items-center justify-center"
+          className="btn-ai w-12 h-12 p-0 flex-shrink-0 rounded-2xl flex items-center justify-center shadow-xs"
         >
           <Send className="w-4 h-4" />
         </button>

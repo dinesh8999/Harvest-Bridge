@@ -366,24 +366,30 @@ export default function InsightsPage() {
   return (
     <div className="max-w-6xl mx-auto px-4 py-6 space-y-6 animate-fade-in">
       {/* ── Page Header ── */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-2 border-b border-slate-200">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-3 border-b border-slate-200/80">
         <div>
-          <h1 className="font-display text-2xl font-bold text-slate-900 flex items-center gap-2.5">
-            <Sparkles className="w-6 h-6 text-forest-600" />
-            AI Insights & Surplus Intelligence
-          </h1>
+          <div className="flex items-center gap-2">
+            <h1 className="font-display text-2xl font-bold text-slate-900 flex items-center gap-2.5">
+              <Sparkles className="w-6 h-6 text-ai-600" />
+              AI Surplus Intelligence & Predictive Scanner
+            </h1>
+            <span className="hidden sm:inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-ai-50 text-ai-800 border border-ai-200 shadow-2xs">
+              <span className="w-1.5 h-1.5 rounded-full bg-ai-500 animate-pulse" />
+              Multi-Factor Neural Engine
+            </span>
+          </div>
           <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
-            Consolidated surplus-risk forecasting, APMC mandi rates, and 7-day regional oversupply warnings
+            Real-time surplus risk forecasting, live APMC mandi benchmarks, and 7-day regional supply pressure analysis
           </p>
         </div>
 
         {/* Navigation Tabs */}
-        <div className="flex items-center gap-1 bg-slate-200/80 p-1 rounded-xl shadow-inner text-xs font-bold">
+        <div className="flex items-center gap-1 bg-slate-200/80 p-1 rounded-xl shadow-inner text-xs font-bold self-start sm:self-auto">
           <button
             onClick={() => setActiveTab('scanner')}
-            className={`px-3 py-1.5 rounded-lg transition-all ${
+            className={`px-3.5 py-1.5 rounded-lg transition-all ${
               activeTab === 'scanner'
-                ? 'bg-white text-forest-800 shadow-xs'
+                ? 'bg-white text-forest-900 shadow-xs'
                 : 'text-slate-600 hover:text-slate-900'
             }`}
           >
@@ -391,9 +397,9 @@ export default function InsightsPage() {
           </button>
           <button
             onClick={() => setActiveTab('mandi')}
-            className={`px-3 py-1.5 rounded-lg transition-all ${
+            className={`px-3.5 py-1.5 rounded-lg transition-all ${
               activeTab === 'mandi'
-                ? 'bg-white text-forest-800 shadow-xs'
+                ? 'bg-white text-forest-900 shadow-xs'
                 : 'text-slate-600 hover:text-slate-900'
             }`}
           >
@@ -401,9 +407,9 @@ export default function InsightsPage() {
           </button>
           <button
             onClick={() => setActiveTab('radar')}
-            className={`px-3 py-1.5 rounded-lg transition-all ${
+            className={`px-3.5 py-1.5 rounded-lg transition-all ${
               activeTab === 'radar'
-                ? 'bg-white text-forest-800 shadow-xs'
+                ? 'bg-white text-forest-900 shadow-xs'
                 : 'text-slate-600 hover:text-slate-900'
             }`}
           >
@@ -416,15 +422,16 @@ export default function InsightsPage() {
       {activeTab === 'scanner' && (
         <div className="space-y-4">
           {/* Quick Scenario Preset Chips */}
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="text-xs font-bold text-slate-500 flex items-center gap-1">
-              <Zap className="w-3.5 h-3.5 text-amber-500" /> Test Presets:
+          <div className="flex flex-wrap items-center gap-2 p-3 bg-white border border-slate-200/90 rounded-xl shadow-2xs">
+            <span className="text-xs font-bold text-slate-600 flex items-center gap-1.5">
+              <Zap className="w-3.5 h-3.5 text-amber-500" />
+              <span>1-Click Test Scenarios:</span>
             </span>
             {PRESET_SCENARIOS.map((sc) => (
               <button
                 key={sc.label}
                 onClick={() => applyPreset(sc)}
-                className="px-2.5 py-1 bg-white hover:bg-forest-50 hover:border-forest-300 border border-slate-200 rounded-lg text-xs font-semibold text-slate-700 transition-all shadow-2xs"
+                className="px-3 py-1 bg-slate-50 hover:bg-ai-50/70 hover:border-ai-300 border border-slate-200 rounded-lg text-xs font-semibold text-slate-700 transition-all shadow-2xs hover:shadow-xs active:scale-95"
               >
                 {sc.label}
               </button>
@@ -433,25 +440,25 @@ export default function InsightsPage() {
 
           <div className="grid lg:grid-cols-12 gap-6 items-start">
             {/* Form Parameters */}
-            <div className="lg:col-span-5 bg-white p-5 rounded-2xl border border-slate-200 shadow-xs space-y-4">
+            <div className="lg:col-span-5 bg-white p-5 rounded-2xl border border-slate-200/90 shadow-xs space-y-4">
               <div className="flex items-center justify-between pb-3 border-b border-slate-100">
                 <h2 className="font-bold text-slate-900 text-sm flex items-center gap-2">
-                  <Zap className="w-4 h-4 text-forest-600" />
+                  <Zap className="w-4 h-4 text-ai-600" />
                   Scan Crop Surplus Risk
                 </h2>
-                <span className="text-[11px] font-semibold text-forest-700 bg-forest-50 px-2 py-0.5 rounded-full border border-forest-200 flex items-center gap-1">
-                  <span className="w-1.5 h-1.5 rounded-full bg-forest-600 animate-pulse" />
+                <span className="text-[11px] font-bold text-ai-700 bg-ai-50 px-2.5 py-0.5 rounded-full border border-ai-200 flex items-center gap-1 shadow-2xs">
+                  <span className="w-1.5 h-1.5 rounded-full bg-ai-500 animate-pulse" />
                   {isScanning ? 'Computing...' : 'Live AI Model'}
                 </span>
               </div>
 
               <form onSubmit={handleScanRisk} className="space-y-3.5 text-xs">
                 <div>
-                  <label className="label">Crop Name</label>
+                  <label className="label font-semibold text-slate-700">Crop Name</label>
                   <select
                     value={form.cropName}
                     onChange={(e) => setForm({ ...form, cropName: e.target.value })}
-                    className="input text-xs"
+                    className="input text-xs focus:ring-ai-500/80 focus:border-ai-500"
                   >
                     {CROPS.map((c) => (
                       <option key={c} value={c}>
@@ -462,11 +469,11 @@ export default function InsightsPage() {
                 </div>
 
                 <div>
-                  <label className="label">Farm Location (Mandal / District)</label>
+                  <label className="label font-semibold text-slate-700">Farm Location (Mandal / District)</label>
                   <select
                     value={form.location}
                     onChange={(e) => setForm({ ...form, location: e.target.value })}
-                    className="input text-xs"
+                    className="input text-xs focus:ring-ai-500/80 focus:border-ai-500"
                   >
                     {LOCATIONS.map((loc) => (
                       <option key={loc} value={loc}>
@@ -478,38 +485,38 @@ export default function InsightsPage() {
 
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="label">Quantity (kg)</label>
+                    <label className="label font-semibold text-slate-700">Quantity (kg)</label>
                     <input
                       type="number"
                       min="50"
                       step="50"
                       value={form.quantity}
                       onChange={(e) => setForm({ ...form, quantity: Number(e.target.value) })}
-                      className="input text-xs"
+                      className="input text-xs focus:ring-ai-500/80 focus:border-ai-500"
                       required
                     />
                   </div>
                   <div>
-                    <label className="label">Expected Price (₹/kg)</label>
+                    <label className="label font-semibold text-slate-700">Expected Price (₹/kg)</label>
                     <input
                       type="number"
                       min="1"
                       step="0.5"
                       value={form.estimatedPrice}
                       onChange={(e) => setForm({ ...form, estimatedPrice: Number(e.target.value) })}
-                      className="input text-xs"
+                      className="input text-xs focus:ring-ai-500/80 focus:border-ai-500"
                       required
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="label">Expected Harvest Date</label>
+                  <label className="label font-semibold text-slate-700">Expected Harvest Date</label>
                   <input
                     type="date"
                     value={form.expectedHarvestDate}
                     onChange={(e) => setForm({ ...form, expectedHarvestDate: e.target.value })}
-                    className="input text-xs"
+                    className="input text-xs focus:ring-ai-500/80 focus:border-ai-500"
                     required
                   />
                 </div>
@@ -517,7 +524,7 @@ export default function InsightsPage() {
                 <button
                   type="submit"
                   disabled={isScanning}
-                  className="btn-primary w-full text-xs py-2.5 font-bold shadow-xs flex items-center justify-center gap-2"
+                  className="btn-ai w-full text-xs py-2.5 font-bold shadow-xs flex items-center justify-center gap-2"
                 >
                   {isScanning ? (
                     <>

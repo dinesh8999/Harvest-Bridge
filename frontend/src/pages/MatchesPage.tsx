@@ -111,20 +111,26 @@ export default function MatchesPage() {
   return (
     <div className="max-w-6xl mx-auto px-4 py-6 space-y-6 animate-fade-in">
       {/* ── Page Header ── */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-2 border-b border-slate-200">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-3 border-b border-slate-200/80">
         <div>
-          <h1 className="font-display text-2xl font-bold text-slate-900 flex items-center gap-2">
-            <Users className="w-6 h-6 text-forest-600" />
-            Find Buyers & Matchmaking
-          </h1>
+          <div className="flex items-center gap-2">
+            <h1 className="font-display text-2xl font-bold text-slate-900 flex items-center gap-2">
+              <Users className="w-6 h-6 text-forest-700" />
+              Find Buyers & Matchmaking
+            </h1>
+            <span className="hidden sm:inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-ai-50 text-ai-800 border border-ai-200 shadow-2xs">
+              <span className="w-1.5 h-1.5 rounded-full bg-ai-500 animate-pulse" />
+              AI Rank Affinity
+            </span>
+          </div>
           <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
             Ranked commercial processors, wholesale buyers, and verified relief organizations for{' '}
-            <strong className="text-slate-800">{cropName}</strong> ({formatWeight(quantity)})
+            <strong className="text-slate-900">{cropName}</strong> ({formatWeight(quantity)})
           </p>
         </div>
 
         {/* Category Filter Pills */}
-        <div className="flex flex-wrap items-center gap-1.5 bg-slate-200/80 p-1 rounded-xl text-xs font-bold">
+        <div className="flex flex-wrap items-center gap-1.5 bg-slate-200/80 p-1 rounded-xl text-xs font-bold self-start sm:self-auto shadow-inner">
           {[
             { id: 'all', label: 'All Buyers' },
             { id: 'processor', label: '🏭 Food Processors' },
@@ -136,7 +142,7 @@ export default function MatchesPage() {
               onClick={() => setSelectedCategory(cat.id)}
               className={`px-3 py-1.5 rounded-lg transition-all ${
                 selectedCategory === cat.id
-                  ? 'bg-white text-forest-800 shadow-xs font-bold'
+                  ? 'bg-white text-forest-900 shadow-xs font-bold'
                   : 'text-slate-600 hover:text-slate-900'
               }`}
             >
@@ -179,18 +185,18 @@ export default function MatchesPage() {
             return (
               <div
                 key={buyerId}
-                className={`bg-white p-4 sm:p-5 rounded-2xl border transition-all shadow-2xs card-hover-lift ${
+                className={`bg-white p-4 sm:p-5 rounded-2xl border transition-all shadow-xs card-hover-lift ${
                   match.matchScore >= 85
                     ? 'border-emerald-300 hover:border-emerald-400'
                     : match.matchScore >= 70
                     ? 'border-amber-300 hover:border-amber-400'
-                    : 'border-slate-200 hover:border-forest-300'
+                    : 'border-slate-200 hover:border-ai-300'
                 }`}
               >
                 <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
                   {/* Left Info */}
                   <div className="flex items-start gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-forest-50 border border-forest-200 text-lg flex items-center justify-center flex-shrink-0">
+                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-forest-50 to-ai-50 border border-slate-200 text-lg flex items-center justify-center flex-shrink-0 shadow-2xs">
                       {CATEGORY_EMOJIS[category] ?? '🏪'}
                     </div>
 
@@ -201,7 +207,7 @@ export default function MatchesPage() {
                           {getCategoryLabel(category)}
                         </span>
                         {category === 'ngo' && (
-                          <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-rose-100 text-rose-800">
+                          <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-rose-50 text-rose-700 border border-rose-200">
                             Verified Rescue Partner
                           </span>
                         )}
@@ -216,7 +222,7 @@ export default function MatchesPage() {
                           <Package className="w-3.5 h-3.5 text-slate-400" /> Capacity: {formatWeight(capacity)}
                         </span>
                         <span>•</span>
-                        <span className="font-semibold text-slate-700">
+                        <span className="font-semibold text-slate-800">
                           Indicative: ₹{indicativeGrossPrice}/kg
                         </span>
                       </div>
@@ -226,13 +232,13 @@ export default function MatchesPage() {
                   {/* Right Score & Actions */}
                   <div className="flex items-center gap-3 sm:self-start">
                     <div className="text-right">
-                      <div className="text-[10px] uppercase font-bold text-slate-400">Match Fit</div>
-                      <div className="text-sm font-extrabold text-forest-700">{match.matchScore}% Score</div>
+                      <div className="text-[10px] uppercase font-bold text-slate-400">AI Match Fit</div>
+                      <div className="text-sm font-extrabold text-ai-700">{match.matchScore}% Score</div>
                     </div>
 
                     <button
                       onClick={() => setCalculatorMatch(match)}
-                      className="px-2.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-xl text-xs font-bold transition-all btn-interactive flex items-center gap-1"
+                      className="px-2.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-xl text-xs font-bold transition-all btn-interactive flex items-center gap-1 shadow-2xs"
                       title="Simulate Take-Home Earnings"
                     >
                       <Calculator className="w-3.5 h-3.5 text-forest-700" />
@@ -245,7 +251,7 @@ export default function MatchesPage() {
                       className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all shadow-xs btn-interactive flex items-center gap-1.5 ${
                         isSent
                           ? 'bg-emerald-100 text-emerald-800 cursor-default'
-                          : 'btn-primary'
+                          : 'btn-ai'
                       }`}
                     >
                       {isSent ? (
@@ -262,10 +268,10 @@ export default function MatchesPage() {
                 </div>
 
                 {/* Net Earnings Snapshot Bar */}
-                <div className="mt-3 pt-3 border-t border-slate-100 flex flex-wrap items-center justify-between gap-2 text-xs bg-slate-50/70 p-2.5 rounded-xl">
+                <div className="mt-3 pt-3 border-t border-slate-100 flex flex-wrap items-center justify-between gap-2 text-xs bg-slate-50/80 p-2.5 rounded-xl border border-slate-200/80">
                   <div className="flex items-center gap-4 text-slate-600">
                     <span>
-                      Gross: <strong>{formatCurrency(grossValue)}</strong>
+                      Gross: <strong className="text-slate-900">{formatCurrency(grossValue)}</strong>
                     </span>
                     <span>
                       Transport: <strong>{pickupAvailable ? '₹0 (Buyer Pickup)' : `- ${formatCurrency(estimatedTransport)}`}</strong>
@@ -275,9 +281,9 @@ export default function MatchesPage() {
                     </span>
                   </div>
 
-                  <div className="font-extrabold text-forest-800 flex items-center gap-2">
+                  <div className="font-extrabold text-forest-900 flex items-center gap-2">
                     <span>Estimated Net Profit: {formatCurrency(netEarnings)}</span>
-                    <span className="text-[10px] px-1.5 py-0.5 bg-forest-100 text-forest-800 rounded font-bold">
+                    <span className="text-[10px] px-2 py-0.5 bg-forest-100 text-forest-800 rounded-md font-bold">
                       (₹{effectiveNetPerKg}/kg effective)
                     </span>
                   </div>
