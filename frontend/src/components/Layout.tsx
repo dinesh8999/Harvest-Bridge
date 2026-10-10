@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import { useApp } from '../hooks/useApp';
 import { NotificationPanel } from './NotificationPanel';
+import { AnimatedPageWrapper } from './AnimatedPageWrapper';
 import type { Language } from '../types';
 
 interface LayoutProps {
@@ -221,7 +222,9 @@ export function Layout({ children }: LayoutProps) {
 
         {/* Main Content View */}
         <main className="flex-1 overflow-auto bg-[#F7F9F7]">
-          {children}
+          <AnimatedPageWrapper key={location.pathname}>
+            {children}
+          </AnimatedPageWrapper>
         </main>
 
         {/* Mobile Bottom Quick Navigation (6 items) */}

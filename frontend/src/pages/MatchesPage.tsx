@@ -179,12 +179,12 @@ export default function MatchesPage() {
             return (
               <div
                 key={buyerId}
-                className={`bg-white p-4 sm:p-5 rounded-2xl border transition-all shadow-2xs ${
+                className={`bg-white p-4 sm:p-5 rounded-2xl border transition-all shadow-2xs card-hover-lift ${
                   match.matchScore >= 85
-                    ? 'border-emerald-300'
+                    ? 'border-emerald-300 hover:border-emerald-400'
                     : match.matchScore >= 70
-                    ? 'border-amber-300'
-                    : 'border-slate-200'
+                    ? 'border-amber-300 hover:border-amber-400'
+                    : 'border-slate-200 hover:border-forest-300'
                 }`}
               >
                 <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
@@ -232,7 +232,7 @@ export default function MatchesPage() {
 
                     <button
                       onClick={() => setCalculatorMatch(match)}
-                      className="px-2.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-xl text-xs font-bold transition-colors flex items-center gap-1"
+                      className="px-2.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-xl text-xs font-bold transition-all btn-interactive flex items-center gap-1"
                       title="Simulate Take-Home Earnings"
                     >
                       <Calculator className="w-3.5 h-3.5 text-forest-700" />
@@ -242,7 +242,7 @@ export default function MatchesPage() {
                     <button
                       onClick={() => handleSendOffer(match)}
                       disabled={isSent}
-                      className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all shadow-xs flex items-center gap-1.5 ${
+                      className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all shadow-xs btn-interactive flex items-center gap-1.5 ${
                         isSent
                           ? 'bg-emerald-100 text-emerald-800 cursor-default'
                           : 'btn-primary'

@@ -105,7 +105,7 @@ export default function DashboardPage() {
 
       {/* ── 4 Essential Summary Cards ── */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5">
-        <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs">
+        <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs card-hover-lift">
           <div className="flex items-center justify-between text-slate-500 mb-2">
             <span className="text-xs font-semibold">Active Crops</span>
             <Sprout className="w-4 h-4 text-forest-600" />
@@ -114,7 +114,7 @@ export default function DashboardPage() {
           <div className="text-[11px] text-slate-500 mt-0.5">{state.crops.length} total registered</div>
         </div>
 
-        <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs">
+        <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs card-hover-lift">
           <div className="flex items-center justify-between text-slate-500 mb-2">
             <span className="text-xs font-semibold">Upcoming Harvests</span>
             <Calendar className="w-4 h-4 text-amber-600" />
@@ -123,7 +123,7 @@ export default function DashboardPage() {
           <div className="text-[11px] text-slate-500 mt-0.5">Due in the next 7 days</div>
         </div>
 
-        <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs">
+        <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs card-hover-lift">
           <div className="flex items-center justify-between text-slate-500 mb-2">
             <span className="text-xs font-semibold">Open Offers</span>
             <Package className="w-4 h-4 text-sky-600" />
@@ -132,7 +132,7 @@ export default function DashboardPage() {
           <div className="text-[11px] text-slate-500 mt-0.5">Awaiting response</div>
         </div>
 
-        <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs">
+        <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs card-hover-lift">
           <div className="flex items-center justify-between text-slate-500 mb-2">
             <span className="text-xs font-semibold">Estimated Earnings</span>
             <DollarSign className="w-4 h-4 text-forest-600" />
