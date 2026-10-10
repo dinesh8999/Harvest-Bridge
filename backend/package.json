@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "start": "node index.js",
-    "test": "npx tsx test-engine.ts"
+    "test": "node test-suite.js"
   },
   "dependencies": {
     "cors": "^2.8.6",

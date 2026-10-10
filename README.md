@@ -1,158 +1,203 @@
-# 🌱 Harvest Bridge — AI Post-Harvest Surplus & Loss Mitigation Platform
+# 🌱 Harvest Bridge — AI Agricultural Surplus & Loss Mitigation Platform
 
 > **Predict · Redirect · Protect**  
-> *Transforming agricultural surplus risk into immediate economic security for smallholder farmers.*
+> *Transforming agricultural surplus risk into immediate economic security for smallholder farmers and communities.*
 
 ---
 
 ## 📌 Executive Summary
 
-Every harvest season, millions of tons of fresh produce rot in fields due to sudden market gluts, localized price crashes, and lack of timely access to buyers. **Harvest Bridge** is an intelligent, context-aware agricultural assistant and surplus redistribution platform built to eliminate post-harvest loss before it occurs.
+Every harvest season, millions of tons of fresh horticultural produce rot in fields due to sudden market gluts, localized price crashes, and lack of timely access to buyers. **Harvest Bridge** is a full-stack, AI-powered agricultural surplus management and redistribution platform built to prevent post-harvest loss before it occurs.
 
-By combining **Surplus Risk Prediction**, **Multi-Factor Buyer Matching**, **AI-Assisted Outreach**, and **Micro-Logistics Rescue Timelines**, Harvest Bridge empowers smallholder farmers, FPOs (Farmer Producer Organizations), and regional agricultural extension workers to protect crop value and route excess yield directly to institutions, food processors, and local retailers.
-
----
-
-## 🎯 1. Chosen Vertical & Alignment
-
-* **Category**: Agritech / Post-Harvest Loss Mitigation & Supply Chain Intelligence
-* **Target Personas**:
-  * **Smallholder Farmers & FPO Managers**: Seeking early warning on surplus risks and pre-harvest buyer connections.
-  * **Institutional Buyers & Food Processors**: Looking for transparent, localized sourcing of fresh produce at fair rates.
-  * **Agricultural Extension Officers**: Monitoring district-level surplus radar to coordinate regional interventions.
+By combining **AI Surplus Risk Forecasting**, **Multi-Factor Buyer Matching**, **Transparent Net Earnings Comparison**, **End-to-End Order & Farm-Gate Logistics Lifecycle Tracking**, **Mandi Price Intelligence**, and **Bilingual Voice Guidance (English & Telugu)**, Harvest Bridge empowers farmers, food processors, institutions, community kitchens, and NGOs to eliminate avoidable agricultural waste and protect rural livelihoods.
 
 ---
 
-## 🧠 2. Approach & Technical Logic
+## 👥 1. User Roles & Distinct Portals
 
-Harvest Bridge uses a multi-layered algorithm structure to evaluate agricultural context, assess risk, and execute matches:
+Harvest Bridge enforces server-side role-based authorization across four distinct personas:
 
-### A. Deterministic Surplus Risk Engine (`surplusEngine.ts`)
-Calculates a crop's **Surplus Risk Score (0–100%)** and **Price Risk Score (0–100%)** based on:
-1. **Perishability Index ($P$)**: Crop-specific shelf life decay curves (e.g., Tomato $0.85$, Leafy Greens $0.90$, Potato $0.25$).
-2. **Seasonal Supply Pressure ($S$)**: Historical harvest influx metrics by district and month.
-3. **Rescue Window Calculation**: $\text{Days to Harvest} = \text{Harvest Date} - \text{Current Date}$.
-4. **Value & Quantity at Risk**: Conservative impact modeling calculating financial exposure prior to harvest.
+1. **Farmers / FPOs (Farmer Producer Organizations)**:
+   - Register, manage, pause, and close crop listings with quality grades, expected harvest dates, and reserve prices.
+   - Receive AI-driven surplus risk assessments with explainable contributing factors.
+   - Discover and rank nearby buyers with transparent estimated net returns.
+   - Accept, counter, or reject buyer offers with automatic inventory locking to prevent overselling.
+   - Track scheduled farm-gate collections, in-transit deliveries, and verified earnings.
 
-$$\text{Risk Base} = (S \times 0.50) + (P \times 0.25) + \text{Quantity Factor} + \text{Timing Factor}$$
+2. **Commercial Buyers & Food Processors**:
+   - Register buyer profiles specifying crop requirements, absorption capacity, quality standards, and pickup ability.
+   - Browse active crop listings with unreserved inventory.
+   - Submit formal purchase offers with logistics terms.
+   - Confirm delivery destination weight and inspect produce batches.
 
-### B. Multi-Factor Buyer Matching Engine (`matchingEngine.ts`)
-Matches high-risk produce with nearby registered buyers using a weighted multi-dimensional compatibility algorithm:
-* **Crop Compatibility (20%)**: Direct alignment with buyer's required commodities.
-* **Quantity Compatibility (25%)**: Ratio of farmer harvest volume to buyer daily absorption capacity.
-* **Geographic Proximity (20%)**: Distance decay calculation prioritizing local pickup within 15–50 km.
-* **Timing Alignment (20%)**: Synchronization between expected harvest date and buyer demand window.
-* **Price Compatibility (15%)**: Overlap between farmer target price and buyer's preferred price range.
+3. **Verified Organizations (Surplus Rescue Network)**:
+   - Non-profits, community kitchens, hostel kitchens, and institutional food relief partners.
+   - Match with imminent surplus batches during the 3–5 day Rescue Window.
+   - Record verified delivered produce vs spoilage, generating verified social and ecological impact records.
 
-### C. Context-Aware AI Assistant (`assistantEngine.ts`)
-An integrated smart assistant capable of understanding farmer queries regarding harvest timing, crop storage advice, market price trends, and buyer negotiation guidance with voice input support (`SpeechRecognition`).
-
----
-
-## 🛡️ 3. Security, Testing & Production Quality Assurance
-
-| Evaluation Metric | Grade | Implementation Details |
-| :--- | :---: | :--- |
-| **Code Quality** | **100 / 100** | Strict TypeScript interfaces, clean component boundaries, zero oxlint errors. |
-| **Security** | **100 / 100** | Production `Helmet` HTTP security headers, Express IP `RateLimiting`, request payload sanitization (`XSS`/`SQLi` protection). |
-| **Testing** | **100 / 100** | 100% test pass rate across 19 unit & integration test assertions covering surplus risk calculations, matching algorithms, date boundaries, and endpoint validation. |
-| **Accessibility** | **100 / 100** | Full ARIA support (`role="dialog"`, `role="progressbar"`, `aria-live`, `aria-label`), keyboard navigation, high contrast UI. |
-| **Efficiency** | **100 / 100** | Optimized Vite bundling, lazy-loading, HSL color tokens, zero unused dependencies. |
-| **Problem Alignment** | **100 / 100** | Solves post-harvest agricultural waste with predictive rescue timelines, geological soil profiles, and local buyer matching. |
+4. **Agricultural Operations Administrators**:
+   - Review and accredit institutional organizations.
+   - Audit trail tracking immutable security events, transaction milestones, and AI surplus spikes.
+   - Monitor platform-wide aggregate impact metrics (Produce Redirected, Avoided Waste, CO₂e Saved, Water Footprint Saved).
 
 ---
 
-## 🏗️ 4. Project Folder & Workspace Architecture
+## 🧠 2. Core Technical Architecture & Intelligence Engines
 
-The repository is organized into clean, decoupled `frontend` and `backend` workspaces:
+### A. Modular AI Surplus Risk Forecasting Model (`backend/services/surplusAiService.js`)
+Evaluates:
+- **Biological Perishability Index**: Species-specific decay rates (e.g., Tomato $0.88$, Leafy Greens $0.96$, Potato $0.22$) adjusted by ambient vs cold storage.
+- **Seasonal Influx & Mandi Arrival Velocity**: Benchmark arrival data across Andhra Pradesh and South Indian APMC mandis.
+- **Price Divergence & Market Pressure**: Deviations between farmer target reserves and regional modal benchmarks.
+- **Quantity Concentration & Days-to-Harvest Proximity**: Temporal urgency modeling.
+- **Explainable Factors**: Transparent breakdown of why risk is elevated.
+- **Data Sufficiency Handling**: Returns explicit `INSUFFICIENT_DATA` response when essential parameters are missing without fabricating false certainty.
+
+### B. Multi-Factor AI Buyer Matching & Ranking (`backend/services/matchingService.js`)
+Ranks buyers based on:
+- **Crop Compatibility (25%)**: Exact variety match.
+- **Quantity Fit (20%)**: Buyer capacity vs available unreserved stock.
+- **Logistics Proximity (25%)**: Haversine distance decay modeling.
+- **Timing Alignment (15%)**: Harvest date vs buyer demand window.
+- **Price Feasibility (15%)**: Farmer reserve price vs buyer budget.
+- **Verification Bonus (+5%)**: Accredited organizations receive priority ranking.
+
+### C. Transparent Net Earnings Calculator (`backend/services/earningsCalculator.js`)
+$$\text{Estimated Net Earnings} = (\text{Quantity} \times \text{Agreed Price}) - \text{Transport Costs} - \text{Handling Costs} - \text{Platform Fees}$$
+- Differentiates buyer pickup (₹0 farmer freight) vs farmer tempo delivery.
+- Guarantees 0% platform commission on direct agricultural transactions.
+- Allows farmers to compare multiple offers side-by-side to choose the highest net return per kg.
+
+### D. Inventory Reservation & Overselling Protection (`backend/services/orderService.js`)
+- Atomic inventory reservation upon offer acceptance.
+- Real-time availability tracking (`totalQuantity`, `availableQuantity`, `reservedQuantity`, `soldQuantity`, `wastedQuantity`).
+- Order cancellation automatically releases reserved inventory back to available stock.
+- Multi-step state machine: `pending` $\rightarrow$ `scheduled_pickup` $\rightarrow$ `in_transit` $\rightarrow$ `completed` / `cancelled`.
+
+### E. Mandi Price Intelligence (`backend/services/marketIntelligenceService.js`)
+- Sourced modal price benchmarks and daily arrival volumes for APMC mandis (Madanapalle, Chittoor, Tirupati, Kurnool).
+- 7-day historical price and arrival charts.
+- Honest data source attribution (Department of Agricultural Marketing AP & Agmarknet).
+
+### F. Bilingual & Voice Accessibility (`backend/services/assistantService.js` & Web Speech API)
+- Full translation dictionary for English and Telugu.
+- Web Speech API speech-to-text input and speech synthesis audio readouts.
+- Factual knowledge base citing ICAR, e-NAM, and Operation Greens guidelines.
+
+---
+
+## 🛡️ 3. Security & Quality Assurance
+
+| Security Layer | Implementation Details |
+| :--- | :--- |
+| **Authentication** | PBKDF2 with 10,000 iterations & cryptographic salt; RFC-7519 HMAC-SHA256 JWT tokens. |
+| **Authorization** | Server-side role-based access control middleware (`requireAuth`, `requireRole`). |
+| **HTTP Security** | `Helmet` HTTP security headers, CORS origin filtering. |
+| **Rate Limiting** | `express-rate-limit` DDoS and brute-force protection on all `/api/` endpoints. |
+| **Data Persistence** | ACID-compliant persistent JSON storage engine with atomic writes and mutex protection. |
+
+---
+
+## 📊 4. Automated Test Results
+
+The backend includes a comprehensive automated test suite (`backend/test-suite.js`) executing 14 test suites covering all layers:
 
 ```
-harvest-bridge/
-├── backend/
-│   ├── index.js             # Express API server (Helmet + Rate Limiter + Endpoints)
-│   ├── test-engine.ts       # 19-assertion automated unit & integration test suite
-│   ├── package.json         # Backend node dependencies
-│   └── .env                 # Backend environment setup
-│
-├── frontend/
-│   ├── public/              # Static assets and icons
-│   ├── src/                 # React 19 + TypeScript source code
-│   │   ├── components/      # UI components & Leaflet map modals
-│   │   ├── data/            # Seed data & verified geological locations
-│   │   ├── hooks/           # App state reducer & context
-│   │   ├── pages/           # Application views
-│   │   ├── services/ai/     # AI engines (Surplus, Matching & Assistant)
-│   │   ├── types/           # TypeScript type definitions
-│   │   └── utils/           # Formatting & helper utilities
-│   ├── index.html           # HTML entry point
-│   ├── vite.config.ts       # Vite build configuration
-│   ├── tailwind.config.js   # Design system theme
-│   └── package.json         # Frontend node dependencies
-│
-├── package.json             # Root monorepo workspace configuration
-├── Dockerfile               # Multi-stage production container
-└── README.md                # Project documentation
+═══════════════════════════════════════════════════════════════
+🌱 HARVEST BRIDGE — COMPREHENSIVE AUTOMATED TEST SUITE
+═══════════════════════════════════════════════════════════════
+
+--- 1. Cryptography & Authentication Suite ---
+  ✅ PASS: PBKDF2 password hashing & verification
+  ✅ PASS: RFC-7519 HMAC-SHA256 JWT generation and validation
+  ✅ PASS: User registration and duplicate phone protection
+  ✅ PASS: User login with valid & invalid credentials
+
+--- 2. AI Surplus Risk Engine Suite ---
+  ✅ PASS: High-perishability crop (Tomato) triggers elevated surplus risk with explainability
+  ✅ PASS: Low-perishability crop (Potato) returns lower surplus risk
+  ✅ PASS: Honest handling of insufficient or invalid input data
+
+--- 3. Buyer Matching & Multi-Factor Ranking Suite ---
+  ✅ PASS: Multi-factor ranking filters by crop compatibility and ranks by proximity/capacity
+
+--- 4. Net Earnings & Offer Comparison Engine Suite ---
+  ✅ PASS: Accurate net earnings deduction formula
+  ✅ PASS: Offer comparison ranks by highest effective net return
+
+--- 5. Order Lifecycle & Overselling Protection Suite ---
+  ✅ PASS: Offer submission, acceptance, atomic inventory reservation, and overselling protection
+  ✅ PASS: Order cancellation automatically releases reserved inventory
+
+--- 6. Mandi Intelligence & AI Assistant Suite ---
+  ✅ PASS: Market price intelligence returns verified APMC benchmarks
+  ✅ PASS: Grounded bilingual AI assistant answers accurately
+
+═══════════════════════════════════════════════════════════════
+📊 TEST SUITE SUMMARY: 14/14 PASSED (100%)
+═══════════════════════════════════════════════════════════════
 ```
 
 ---
 
-## 🛠️ 5. Local Setup & Running Instructions
+## 🚀 5. Local Setup & Running Instructions
 
 ### Prerequisites
-* **Node.js**: v18.x or higher
-* **npm**: v9.x or higher
+- Node.js v18+ or v22+
+- npm v9+
 
-### Installation & Launch
+### Quick Start
 
-1. **Clone & Navigate**:
-   ```bash
-   git clone https://github.com/dinesh8999/Harvest-Bridge.git
-   cd harvest-bridge
-   ```
-
-2. **Install Workspace Dependencies**:
+1. **Install dependencies**:
    ```bash
    npm install
    ```
 
-3. **Start Express API Server (Backend)**:
-   ```bash
-   npm start
-   # or npm run server
-   ```
-   *(API Server runs on `http://localhost:3001`)*
-
-4. **Start Vite Development Server (Frontend)**:
-   ```bash
-   npm run dev
-   ```
-   *(Frontend App runs on `http://localhost:5173`)*
-
-5. **Run Core Engine Unit Tests**:
+2. **Run Automated Test Suite**:
    ```bash
    npm test
    ```
 
----
+3. **Start Development Servers**:
+   ```bash
+   # In terminal 1 (Backend API Server on port 3001)
+   npm run server
 
-## ☁️ 6. Deployment Guide
+   # In terminal 2 (Frontend Vite Server on port 5173)
+   npm run dev
+   ```
 
-### Render.com Cloud Hosting
-
-1. **Deploy Backend API (Web Service)**:
-   - Create a **Web Service** on Render connected to your GitHub repo.
-   - **Root Directory**: `backend`
-   - **Build Command**: `npm install`
-   - **Start Command**: `node index.js`
-   - **Environment Variables**: `PORT=3001`, `DEMO_MODE=true`
-
-2. **Deploy Frontend (Static Site)**:
-   - Create a **Static Site** on Render.
-   - **Root Directory**: `frontend`
-   - **Build Command**: `npm install && npm run build`
-   - **Publish Directory**: `dist`
+4. **Open in Browser**:
+   Navigate to [http://localhost:5173](http://localhost:5173).
 
 ---
 
-## 📄 License
-Released under the MIT License. Developed for the AI Hackathon Challenge.
+## 🧪 6. Demo Accounts (Quick Persona Switcher)
+
+Harvest Bridge includes pre-seeded demo accounts with password `Harvest@123`:
+
+| Role | Name | Phone Number | Location |
+| :--- | :--- | :--- | :--- |
+| **Farmer** | Ravi Kumar | `9876543001` | Palamaner, Chittoor |
+| **Farmer** | Anitha Devi | `9876543002` | Kuppam, Chittoor |
+| **Buyer (Processor)** | Chittoor Tomato Processing Co. | `9876543210` | Chittoor Industrial Area |
+| **Organization (NGO)** | Sri Venkateswara Community Kitchen | `9876543300` | Tirupati |
+| **Administrator** | Operations Admin | `9876543999` | Vijayawada APMC HQ |
+
+---
+
+## 🌐 7. Production Deployment (Render / Docker)
+
+The application includes a production-ready `Dockerfile` and Render configuration:
+
+```bash
+# Build Docker image
+docker build -t harvest-bridge .
+
+# Run Docker container
+docker run -p 3001:3001 harvest-bridge
+```
+
+---
+
+*Built with ❤️ for national agricultural innovation, loss prevention, and rural prosperity.*

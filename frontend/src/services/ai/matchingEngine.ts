@@ -3,7 +3,7 @@
 // Weighted scoring with explainability
 // =============================================
 
-import type { Buyer, BuyerMatch } from '../../types';
+import type { Buyer, BuyerMatch, ScoreBreakdown } from '../../types';
 import { DEMO_BUYERS } from '../../data/demoData';
 
 export interface MatchInput {
@@ -16,7 +16,7 @@ export interface MatchInput {
   expectedHarvestDate?: string;
 }
 
-// ─── Default crop coordinates for demo ───────
+// Default crop coordinates for demo
 const LOCATION_COORDS: Record<string, [number, number]> = {
   'Chittoor': [13.2172, 79.1003],
   'Palamaner': [13.2000, 78.7500],
@@ -29,7 +29,6 @@ const LOCATION_COORDS: Record<string, [number, number]> = {
   'Thamballapalle': [13.6900, 78.8200],
 };
 
-// Matching weights (configurable)
 const WEIGHTS = {
   quantity: 0.25,
   distance: 0.20,
@@ -49,42 +48,47 @@ export function findBuyerMatches(input: MatchInput, buyers?: Buyer[]): BuyerMatc
     const matchScore = calculateWeightedScore(breakdown);
 
     return {
+      buyerId: buyer._id,
+      buyerName: buyer.name,
+      buyerRole: 'buyer',
+      category: buyer.category,
+      location: buyer.location,
+      distanceKm: Math.round(distance),
+      pickupAvailable: buyer.pickupAvailable,
+      capacityKg: buyer.capacity,
+      preferredPriceRange: `₹${buyer.preferredPriceMin} – ₹${buyer.preferredPriceMax}/kg`,
+      indicativePricePerKg: (buyer.preferredPriceMin + buyer.preferredPriceMax) / 2,
       buyer,
       matchScore: Math.round(matchScore),
       distance: Math.round(distance),
       scoreBreakdown: breakdown,
       recommendation: buildMatchRecommendation(buyer, matchScore, distance, input),
       status: 'pending',
+      verified: true,
     };
   });
 
-  // Filter relevant buyers and sort by score
   return scored
-    .filter((m) => m.scoreBreakdown.cropCompatibility > 0) // Must want this crop
+    .filter((m) => m.scoreBreakdown.cropCompatibility > 0)
     .sort((a, b) => b.matchScore - a.matchScore)
-    .slice(0, 6); // Top 6 matches
+    .slice(0, 6);
 }
 
-// ─── Score Breakdown ─────────────────────────
 function calculateBreakdown(
   input: MatchInput,
   buyer: Buyer,
   distance: number,
   daysUntilHarvest: number
-): BuyerMatch['scoreBreakdown'] {
-  // 1. Crop compatibility (binary + partial)
+): ScoreBreakdown {
   const cropCompatibility = buyer.cropsWanted.some(
-    (c) => c.toLowerCase() === (input.cropName || '').toLowerCase()
+    (c: string) => c.toLowerCase() === (input.cropName || '').toLowerCase()
   ) ? 100 : 0;
 
-  // 2. Quantity compatibility
   const qRatio = Math.min(input.quantity, buyer.capacity) / Math.max(input.quantity, buyer.capacity);
   const quantityCompatibility = Math.round(qRatio * 100);
 
-  // 3. Distance score (closer = better, ≤10km = 100, ≥100km = 10)
   const distanceScore = Math.max(10, Math.round(100 - (distance / 100) * 90));
 
-  // 4. Timing compatibility
   let timingCompatibility = 80;
   if (buyer.requiredByDate) {
     const buyerNeedDays = getDaysUntilHarvest(buyer.requiredByDate);
@@ -92,7 +96,6 @@ function calculateBreakdown(
     timingCompatibility = Math.max(30, Math.round(100 - diff * 12));
   }
 
-  // 5. Price compatibility
   const priceCompatibility = calculatePriceCompatibility(
     input.estimatedPrice,
     buyer.preferredPriceMin,
@@ -100,21 +103,31 @@ function calculateBreakdown(
   );
 
   return {
-    quantityCompatibility,
-    distanceScore,
-    timingCompatibility,
     cropCompatibility,
+    quantityCompatibility,
+    quantityFit: quantityCompatibility,
+    distanceScore,
+    logisticsProximity: distanceScore,
+    timingCompatibility,
+    timingAlignment: timingCompatibility,
     priceCompatibility,
+    priceFeasibility: priceCompatibility,
   };
 }
 
-function calculateWeightedScore(breakdown: BuyerMatch['scoreBreakdown']): number {
+function calculateWeightedScore(breakdown: ScoreBreakdown): number {
+  const q = breakdown.quantityCompatibility ?? breakdown.quantityFit ?? 80;
+  const d = breakdown.distanceScore ?? breakdown.logisticsProximity ?? 80;
+  const t = breakdown.timingCompatibility ?? breakdown.timingAlignment ?? 80;
+  const c = breakdown.cropCompatibility ?? 100;
+  const p = breakdown.priceCompatibility ?? breakdown.priceFeasibility ?? 80;
+
   return (
-    breakdown.quantityCompatibility * WEIGHTS.quantity +
-    breakdown.distanceScore * WEIGHTS.distance +
-    breakdown.timingCompatibility * WEIGHTS.timing +
-    breakdown.cropCompatibility * WEIGHTS.cropCompatibility +
-    breakdown.priceCompatibility * WEIGHTS.price
+    q * WEIGHTS.quantity +
+    d * WEIGHTS.distance +
+    t * WEIGHTS.timing +
+    c * WEIGHTS.cropCompatibility +
+    p * WEIGHTS.price
   );
 }
 
@@ -128,12 +141,10 @@ function calculatePriceCompatibility(
     const diff = buyerMin - farmerPrice;
     return Math.max(0, Math.round(100 - (diff / buyerMin) * 100));
   }
-  // farmerPrice > buyerMax
   const diff = farmerPrice - buyerMax;
   return Math.max(0, Math.round(100 - (diff / farmerPrice) * 100));
 }
 
-// ─── Recommendation Builder ───────────────────
 function buildMatchRecommendation(
   buyer: Buyer,
   score: number,
@@ -149,7 +160,6 @@ function buildMatchRecommendation(
   return `Potential match — ${buyer.name} may be interested. Confirm quantities and timing before proceeding.`;
 }
 
-// ─── Utilities ───────────────────────────────
 function getDaysUntilHarvest(dateStr: string): number {
   const harvest = new Date(dateStr);
   const today = new Date();
@@ -161,11 +171,10 @@ function resolveCoords(location: string, lat?: number, lng?: number): [number, n
   const key = Object.keys(LOCATION_COORDS).find((k) =>
     location.toLowerCase().includes(k.toLowerCase())
   );
-  return key ? LOCATION_COORDS[key] : [13.2172, 79.1003]; // Default: Chittoor
+  return key ? LOCATION_COORDS[key] : [13.2172, 79.1003];
 }
 
 function calculateDistance([lat1, lng1]: [number, number], [lat2, lng2]: [number, number]): number {
-  // Haversine formula
   const R = 6371;
   const dLat = toRad(lat2 - lat1);
   const dLng = toRad(lng2 - lng1);

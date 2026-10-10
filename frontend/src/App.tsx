@@ -1,5 +1,6 @@
 // =============================================
-// HARVEST BRIDGE — App Router
+// HARVEST BRIDGE — Master Application Router
+// Comprehensive role-aware routing and navigation
 // =============================================
 
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
@@ -10,10 +11,14 @@ import DashboardPage from './pages/DashboardPage';
 import CheckRiskPage from './pages/CheckRiskPage';
 import CropsPage from './pages/CropsPage';
 import MatchesPage from './pages/MatchesPage';
+import OrdersPage from './pages/OrdersPage';
+import MarketPage from './pages/MarketPage';
+import RescueNetworkPage from './pages/RescueNetworkPage';
 import ImpactPage from './pages/ImpactPage';
 import SurplusRadarPage from './pages/SurplusRadarPage';
 import MapPage from './pages/MapPage';
 import AssistantPage from './pages/AssistantPage';
+import AdminPage from './pages/AdminPage';
 import ProfilePage from './pages/ProfilePage';
 import { LoginPage, RegisterPage } from './pages/AuthPages';
 
@@ -27,8 +32,6 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
 }
 
 function AppRoutes() {
-  const { state } = useApp();
-
   return (
     <Routes>
       {/* Public */}
@@ -36,20 +39,12 @@ function AppRoutes() {
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
 
-      {/* Protected - with Layout */}
+      {/* Protected Routes inside Layout */}
       <Route
         path="/dashboard"
         element={
           <ProtectedRoute>
             <Layout><DashboardPage /></Layout>
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/check-risk"
-        element={
-          <ProtectedRoute>
-            <Layout><CheckRiskPage /></Layout>
           </ProtectedRoute>
         }
       />
@@ -62,6 +57,14 @@ function AppRoutes() {
         }
       />
       <Route
+        path="/check-risk"
+        element={
+          <ProtectedRoute>
+            <Layout><CheckRiskPage /></Layout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
         path="/matches"
         element={
           <ProtectedRoute>
@@ -70,10 +73,26 @@ function AppRoutes() {
         }
       />
       <Route
-        path="/impact"
+        path="/orders"
         element={
           <ProtectedRoute>
-            <Layout><ImpactPage /></Layout>
+            <Layout><OrdersPage /></Layout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/market"
+        element={
+          <ProtectedRoute>
+            <Layout><MarketPage /></Layout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/rescue"
+        element={
+          <ProtectedRoute>
+            <Layout><RescueNetworkPage /></Layout>
           </ProtectedRoute>
         }
       />
@@ -102,6 +121,22 @@ function AppRoutes() {
         }
       />
       <Route
+        path="/impact"
+        element={
+          <ProtectedRoute>
+            <Layout><ImpactPage /></Layout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/admin"
+        element={
+          <ProtectedRoute>
+            <Layout><AdminPage /></Layout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
         path="/profile"
         element={
           <ProtectedRoute>
@@ -111,7 +146,7 @@ function AppRoutes() {
       />
 
       {/* Fallback */}
-      <Route path="*" element={<Navigate to="/" replace />} />
+      <Route path="*" element={<Navigate to="/dashboard" replace />} />
     </Routes>
   );
 }

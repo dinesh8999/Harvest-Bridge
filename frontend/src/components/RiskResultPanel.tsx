@@ -68,9 +68,9 @@ const itemVariants = {
 };
 
 export function RiskResultPanel({ prediction, matches, formData, onReset }: Props) {
-  const { dispatch, state } = useApp();
+  const { dispatch } = useApp();
   const [selectedMatch, setSelectedMatch] = useState<string | null>(null);
-  const [sentTo, setSentTo] = useState<string[]>(state.sentInquiries);
+  const [sentTo, setSentTo] = useState<string[]>([]);
   const [successBuyer, setSuccessBuyer] = useState<BuyerMatch | null>(null);
 
   const daysUntilHarvest = Math.max(0, Math.ceil(
@@ -80,9 +80,8 @@ export function RiskResultPanel({ prediction, matches, formData, onReset }: Prop
   const grossValue = formData.quantity * formData.estimatedPrice;
 
   const handleSendInquiry = (match: BuyerMatch) => {
-    const buyerId = match.buyer._id;
+    const buyerId = match.buyerId || match.buyer?._id;
     setSentTo((prev) => [...prev, buyerId]);
-    dispatch({ type: 'SEND_INQUIRY', payload: buyerId });
     dispatch({
       type: 'ADD_NOTIFICATION',
       payload: {
