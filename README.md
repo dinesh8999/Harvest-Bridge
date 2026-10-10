@@ -1,5 +1,10 @@
 # 🌱 Harvest Bridge — AI Agricultural Surplus & Loss Mitigation Platform
 
+[![Live Application](https://img.shields.io/badge/Live_App-Render_Hosted-0D9488?style=for-the-badge&logo=render&logoColor=white)](https://harvest-bridge-1.onrender.com/)
+[![GitHub Repository](https://img.shields.io/badge/GitHub-dinesh8999%2FHarvest--Bridge-064E3B?style=for-the-badge&logo=github&logoColor=white)](https://github.com/dinesh8999/Harvest-Bridge)
+[![Tests Passing](https://img.shields.io/badge/Tests-14%2F14_Passed_(100%25)-10B981?style=for-the-badge&logo=checkmarx&logoColor=white)](https://github.com/dinesh8999/Harvest-Bridge)
+[![License](https://img.shields.io/badge/License-MIT-blue?style=for-the-badge)](LICENSE)
+
 > **Predict · Redirect · Protect**  
 > *Transforming agricultural surplus risk into immediate economic security for smallholder farmers and communities.*
 
@@ -7,86 +12,160 @@
 
 ## 📌 Executive Summary
 
-Every harvest season, millions of tons of fresh horticultural produce rot in fields due to sudden market gluts, localized price crashes, and lack of timely access to buyers. **Harvest Bridge** is a full-stack, AI-powered agricultural surplus management and redistribution platform built to prevent post-harvest loss before it occurs.
+Every harvest season, millions of tons of fresh horticultural produce rot in fields across India due to sudden market gluts, localized price crashes, and lack of timely access to buyers. **Harvest Bridge** is a full-stack, AI-powered agricultural surplus management and redistribution platform built to prevent post-harvest loss **before it occurs**.
 
-By combining **AI Surplus Risk Forecasting**, **Multi-Factor Buyer Matching**, **Transparent Net Earnings Comparison**, **End-to-End Order & Farm-Gate Logistics Lifecycle Tracking**, **Mandi Price Intelligence**, and **Bilingual Voice Guidance (English & Telugu)**, Harvest Bridge empowers farmers, food processors, institutions, community kitchens, and NGOs to eliminate avoidable agricultural waste and protect rural livelihoods.
-
----
-
-## 👥 1. User Roles & Distinct Portals
-
-Harvest Bridge enforces server-side role-based authorization across four distinct personas:
-
-1. **Farmers / FPOs (Farmer Producer Organizations)**:
-   - Register, manage, pause, and close crop listings with quality grades, expected harvest dates, and reserve prices.
-   - Receive AI-driven surplus risk assessments with explainable contributing factors.
-   - Discover and rank nearby buyers with transparent estimated net returns.
-   - Accept, counter, or reject buyer offers with automatic inventory locking to prevent overselling.
-   - Track scheduled farm-gate collections, in-transit deliveries, and verified earnings.
-
-2. **Commercial Buyers & Food Processors**:
-   - Register buyer profiles specifying crop requirements, absorption capacity, quality standards, and pickup ability.
-   - Browse active crop listings with unreserved inventory.
-   - Submit formal purchase offers with logistics terms.
-   - Confirm delivery destination weight and inspect produce batches.
-
-3. **Verified Organizations (Surplus Rescue Network)**:
-   - Non-profits, community kitchens, hostel kitchens, and institutional food relief partners.
-   - Match with imminent surplus batches during the 3–5 day Rescue Window.
-   - Record verified delivered produce vs spoilage, generating verified social and ecological impact records.
-
-4. **Agricultural Operations Administrators**:
-   - Review and accredit institutional organizations.
-   - Audit trail tracking immutable security events, transaction milestones, and AI surplus spikes.
-   - Monitor platform-wide aggregate impact metrics (Produce Redirected, Avoided Waste, CO₂e Saved, Water Footprint Saved).
+By combining **AI Surplus Risk Forecasting**, **Multi-Factor Buyer Matching**, **Transparent Net Earnings Comparison**, **End-to-End Order & Farm-Gate Logistics Lifecycle Tracking**, **Mandi Price Intelligence**, and **Bilingual Voice Guidance (English & Telugu)**, Harvest Bridge empowers farmers, food processors, institutional buyers, community kitchens, and NGOs to eliminate avoidable agricultural waste and protect rural livelihoods.
 
 ---
 
-## 🧠 2. Core Technical Architecture & Intelligence Engines
+## 🛑 Problem Statement & Ground Reality
 
-### A. Modular AI Surplus Risk Forecasting Model (`backend/services/surplusAiService.js`)
-Evaluates:
-- **Biological Perishability Index**: Species-specific decay rates (e.g., Tomato $0.88$, Leafy Greens $0.96$, Potato $0.22$) adjusted by ambient vs cold storage.
-- **Seasonal Influx & Mandi Arrival Velocity**: Benchmark arrival data across Andhra Pradesh and South Indian APMC mandis.
-- **Price Divergence & Market Pressure**: Deviations between farmer target reserves and regional modal benchmarks.
-- **Quantity Concentration & Days-to-Harvest Proximity**: Temporal urgency modeling.
-- **Explainable Factors**: Transparent breakdown of why risk is elevated.
-- **Data Sufficiency Handling**: Returns explicit `INSUFFICIENT_DATA` response when essential parameters are missing without fabricating false certainty.
+### 1. The Post-Harvest Glut & Distress Sale Crisis
+In major agricultural and horticultural clusters like **Chittoor, Madanapalle, and Annamayya (Andhra Pradesh)**, peak seasonal harvests cause sudden arrival surges that overwhelm local APMC market yards. 
+- During peak glut periods, tomato mandi prices frequently collapse from **₹25–₹30/kg down to ₹2–₹3/kg**, which fails to even cover the cost of harvesting and crate transportation.
+- Farmers are forced into **distress selling** or dumping truckloads of fresh produce on highways.
 
-### B. Multi-Factor AI Buyer Matching & Ranking (`backend/services/matchingService.js`)
-Ranks buyers based on:
-- **Crop Compatibility (25%)**: Exact variety match.
-- **Quantity Fit (20%)**: Buyer capacity vs available unreserved stock.
-- **Logistics Proximity (25%)**: Haversine distance decay modeling.
-- **Timing Alignment (15%)**: Harvest date vs buyer demand window.
-- **Price Feasibility (15%)**: Farmer reserve price vs buyer budget.
-- **Verification Bonus (+5%)**: Accredited organizations receive priority ranking.
+### 2. The Food Waste vs. Hunger Paradox
+- **₹1.5 Lakh Crore Annual Horticultural Loss**: India loses approximately **16% of fruits and vegetables** post-harvest due to supply chain bottlenecks.
+- Simultaneously, **industrial food processors** operate below full capacity due to irregular raw material procurement, and **humanitarian relief organizations / community kitchens** struggle with fresh nutrition supply.
 
-### C. Transparent Net Earnings Calculator (`backend/services/earningsCalculator.js`)
-$$\text{Estimated Net Earnings} = (\text{Quantity} \times \text{Agreed Price}) - \text{Transport Costs} - \text{Handling Costs} - \text{Platform Fees}$$
+### 3. Information Asymmetry & Late Warnings
+- Traditional market platforms are **reactive**: farmers only discover price crashes *after* spending money to harvest, load, and transport produce to an overloaded market yard.
+- Harvest Bridge solves this by acting **3 to 7 days before harvest**, providing farmers with an actionable **Rescue Window** while crops are still in the ground.
+
+---
+
+## 💡 The Solution Framework: "Predict. Redirect. Protect."
+
+```
+┌────────────────────────────────────────────────────────────────────────┐
+│                        🌾 FARMER HARVEST LISTING                       │
+└───────────────────────────────────┬────────────────────────────────────┘
+                                    │
+                                    ▼
+┌────────────────────────────────────────────────────────────────────────┐
+│                      🧠 AI SURPLUS RISK ENGINE                         │
+│  - APMC Arrival Velocity             - Biological Perishability        │
+│  - Regional Price Divergence         - Harvest Timing Proximity        │
+└───────────────────────────────────┬────────────────────────────────────┘
+                                    │
+                         [ Early Warning 3-7 Days ]
+                                    │
+                                    ▼
+┌────────────────────────────────────────────────────────────────────────┐
+│                      ⚡ 3-5 DAY RESCUE WINDOW                          │
+├───────────────────────────────────┬────────────────────────────────────┤
+│   🏭 Commercial Food Processors   │   ❤️ Verified Relief NGOs / Kitchens│
+│   🛒 Bulk Wholesale & Retail      │   🏛️ Institutional Aggregators     │
+└───────────────────────────────────┴────────────────────────────────────┘
+                                    │
+                                    ▼
+┌────────────────────────────────────────────────────────────────────────┐
+│                 💰 GUARANTEED NET TAKE-HOME EARNINGS                   │
+│         (Gross Buyer Value - Real Freight - Handling Deductions)       │
+└────────────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## 🎯 Practical Use Cases & End-to-End Scenarios
+
+### Use Case 1: Tomato Peak Glut Pre-Harvest Early Warning
+- **Persona**: Smallholder tomato farmer in Palamaner, Chittoor (2,500 kg harvest due in 3 days).
+- **Scenario**: Local Madanapalle Mandi arrivals spike by 45%, causing prices to trend downwards.
+- **Harvest Bridge Action**: The AI Surplus Risk Engine flags an **84% Critical Surplus Alert** and establishes a **4-Day Rescue Window**.
+- **Outcome**: The farmer receives an instant notification before harvesting, avoiding an estimated ₹32,000 loss and redirecting the batch directly to a nearby food processing unit.
+
+### Use Case 2: Commercial Bulk Purchase with Transparent Net Earnings
+- **Persona**: Commercial Food Processing Plant in Chittoor Industrial Area.
+- **Scenario**: Needs 5,000 kg of processing-grade tomatoes weekly at steady rates.
+- **Harvest Bridge Action**: The Multi-Factor Matching Engine matches the plant with verified nearby farmers.
+- **Outcome**: The farmer uses the **Net Earnings Simulator** to compare gross ₹21/kg (farmer delivery) vs ₹19.50/kg (buyer farm-gate pickup) and selects the option yielding higher take-home profit after factoring in freight.
+
+### Use Case 3: Humanitarian Surplus Rescue Network (Zero Waste)
+- **Persona**: Sri Venkateswara Community Kitchen & Hunger Relief NGO.
+- **Scenario**: Imminent crop surplus unable to find high-margin commercial buyers within 48 hours.
+- **Harvest Bridge Action**: Activates the **Verified Rescue Network** at 0% platform fee, connecting the farmer with institutional kitchens.
+- **Outcome**: 100% of produce is absorbed for community meals; farmer recovers baseline logistics costs; verified social impact records (meals served, avoided CO₂e, water saved) are logged.
+
+### Use Case 4: Mandi Price Intelligence & Regional Radar
+- **Persona**: Farmer Producer Organization (FPO) Manager.
+- **Scenario**: Planning harvest schedules across 50 member farms for the upcoming week.
+- **Harvest Bridge Action**: Uses the **7-Day Regional Surplus Radar** and **APMC Benchmark Trends** (Madanapalle, Palamaner, Tirupati).
+- **Outcome**: Staggers member harvests and diverts excess supply to undersaturated regional hubs.
+
+### Use Case 5: Bilingual Voice-Assisted Farmer Copilot
+- **Persona**: Non-English literate farmer.
+- **Scenario**: Needs guidance on tomato storage guidelines, net earnings formulas, or AP government surplus schemes (e-NAM, Operation Greens, Rythu Bharosa Kendras).
+- **Harvest Bridge Action**: Farmer speaks naturally in **Telugu (తెలుగు)** via one-tap voice input.
+- **Outcome**: Harvest-AI assistant responds with factual, grounded markdown advice and provides audio readouts in Telugu.
+
+---
+
+## 📱 The 6 Core Navigation Pillars
+
+| # | Pillar | Route | Description |
+|---|---|---|---|
+| **1** | **Dashboard** | `/dashboard` | Answers 4 essential farmer questions: Active crops, upcoming harvests within 7 days, open offers, and estimated net inventory earnings with prioritized AI surplus alerts. |
+| **2** | **My Crops** | `/crops` | Farm inventory manager displaying real-time risk scores, harvest countdowns, status toggles, and direct matching triggers. |
+| **3** | **Find Buyers** | `/buyers` | Ranked buyer matchmaking with category filters (Food Processors, Retail & Wholesale, Verified NGOs) and Net Take-Home Earnings simulator. |
+| **4** | **Orders** | `/orders` | Order fulfillment tracking with a 4-stage lifecycle (`Pending` $\rightarrow$ `Scheduled Pickup` $\rightarrow$ `In Transit` $\rightarrow$ `Delivered`) backed by atomic inventory locking. |
+| **5** | **AI Insights** | `/insights` | Predictive command center: Live Multi-Factor Risk Scanner, APMC Mandi Benchmarks with 7-day charts, and 7-Day Regional Supply Radar. |
+| **6** | **AI Assistant** | `/assistant` | ChatGPT-grade agricultural assistant grounded in ICAR & e-NAM guidelines, featuring bilingual voice STT/TTS and markdown rendering. |
+
+---
+
+## 🧠 Core Intelligence & Algorithmic Engines
+
+### 1. Multi-Factor Surplus Risk Engine (`backend/services/surplusAiService.js`)
+$$\text{Surplus Risk (0–100\%)} = f(\text{Arrival Velocity}, \text{Perishability Half-Life}, \text{Price Divergence}, \text{Harvest Proximity}, \text{Quantity Concentration})$$
+- Evaluates biological perishability (Tomato $0.88$, Leafy Greens $0.96$, Potato $0.22$).
+- Benchmarks arrival velocity against 30-day APMC arrival baselines.
+- Returns explainable contributing factors, value at risk (₹), decay urgency, and the exact Rescue Window.
+
+### 2. Multi-Factor Buyer Matching & Ranking (`backend/services/matchingService.js`)
+$$\text{Match Score} = (0.25 \times \text{Crop Compatibility}) + (0.25 \times \text{Proximity Score}) + (0.20 \times \text{Capacity Fit}) + (0.15 \times \text{Timing}) + (0.15 \times \text{Price})$$
+- Applies a Haversine distance decay freight penalty ($1.25\text{ ₹/km/quintal}$).
+- Grants an accredited trust bonus to verified humanitarian organizations.
+
+### 3. Net Take-Home Earnings Simulator (`backend/services/earningsCalculator.js`)
+$$\text{Net Farmer Earnings} = (\text{Quantity} \times \text{Agreed Price}) - \text{Transport Cost} - \text{Handling Cost} - \text{Platform Fee}$$
 - Differentiates buyer pickup (₹0 farmer freight) vs farmer tempo delivery.
 - Guarantees 0% platform commission on direct agricultural transactions.
-- Allows farmers to compare multiple offers side-by-side to choose the highest net return per kg.
 
-### D. Inventory Reservation & Overselling Protection (`backend/services/orderService.js`)
-- Atomic inventory reservation upon offer acceptance.
-- Real-time availability tracking (`totalQuantity`, `availableQuantity`, `reservedQuantity`, `soldQuantity`, `wastedQuantity`).
+### 4. Atomic Inventory Reservation & Overselling Protection (`backend/services/orderService.js`)
+- Protects farmers sending concurrent offers: accepting an offer automatically decrements `availableQuantity` and transitions stock to `reservedQuantity`.
 - Order cancellation automatically releases reserved inventory back to available stock.
-- Multi-step state machine: `pending` $\rightarrow$ `scheduled_pickup` $\rightarrow$ `in_transit` $\rightarrow$ `completed` / `cancelled`.
-
-### E. Mandi Price Intelligence (`backend/services/marketIntelligenceService.js`)
-- Sourced modal price benchmarks and daily arrival volumes for APMC mandis (Madanapalle, Chittoor, Tirupati, Kurnool).
-- 7-day historical price and arrival charts.
-- Honest data source attribution (Department of Agricultural Marketing AP & Agmarknet).
-
-### F. Bilingual & Voice Accessibility (`backend/services/assistantService.js` & Web Speech API)
-- Full translation dictionary for English and Telugu.
-- Web Speech API speech-to-text input and speech synthesis audio readouts.
-- Factual knowledge base citing ICAR, e-NAM, and Operation Greens guidelines.
 
 ---
 
-## 🛡️ 3. Security & Quality Assurance
+## 🏗️ Tech Stack & Architecture
+
+```
+┌────────────────────────────────────────────────────────────────────────┐
+│                   FRONTEND (React 18 + TypeScript + Vite)              │
+│  - TailwindCSS Agricultural AI Design System   - Framer Motion         │
+│  - Recharts APMC Mandi Area Visualizations    - Web Speech STT & TTS  │
+└───────────────────────────────────┬────────────────────────────────────┘
+                                    │ Axios REST API
+                                    ▼
+┌────────────────────────────────────────────────────────────────────────┐
+│                   BACKEND (Node.js + Express REST API)                 │
+│  - RFC-7519 HMAC-SHA256 JWT Authentication    - Helmet Security        │
+│  - PBKDF2 Password Hashing (10,000 Iterations) - Rate Limiting DDoS     │
+│  - Multi-Factor Surplus & Matching Algorithms - Express Router         │
+└───────────────────────────────────┬────────────────────────────────────┘
+                                    │ Mutex Protected Atomic I/O
+                                    ▼
+┌────────────────────────────────────────────────────────────────────────┐
+│                   DATA & AUDIT PERSISTENCE LAYER                       │
+│  - ACID-Compliant JSON Storage Engine          - Immutable Audit Trail │
+└────────────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## 🛡️ Security & Quality Assurance
 
 | Security Layer | Implementation Details |
 | :--- | :--- |
@@ -98,7 +177,7 @@ $$\text{Estimated Net Earnings} = (\text{Quantity} \times \text{Agreed Price}) -
 
 ---
 
-## 📊 4. Automated Test Results
+## 📊 Automated Test Results
 
 The backend includes a comprehensive automated test suite (`backend/test-suite.js`) executing 14 test suites covering all layers:
 
@@ -140,64 +219,75 @@ The backend includes a comprehensive automated test suite (`backend/test-suite.j
 
 ---
 
-## 🚀 5. Local Setup & Running Instructions
+## 🚀 Local Setup & Running Instructions
 
 ### Prerequisites
-- Node.js v18+ or v22+
-- npm v9+
+- **Node.js** v18+ or v22+
+- **npm** v9+
 
 ### Quick Start
 
-1. **Install dependencies**:
+1. **Clone the Repository**:
+   ```bash
+   git clone https://github.com/dinesh8999/Harvest-Bridge.git
+   cd Harvest-Bridge
+   ```
+
+2. **Install Dependencies**:
    ```bash
    npm install
    ```
 
-2. **Run Automated Test Suite**:
+3. **Run the Automated Test Suite**:
    ```bash
    npm test
    ```
 
-3. **Start Development Servers**:
+4. **Start Development Servers**:
    ```bash
-   # In terminal 1 (Backend API Server on port 3001)
+   # Terminal 1: Start Backend API Server (Port 3001)
    npm run server
 
-   # In terminal 2 (Frontend Vite Server on port 5173)
+   # Terminal 2: Start Frontend Vite Server (Port 5173)
    npm run dev
    ```
 
-4. **Open in Browser**:
-   Navigate to [http://localhost:5173](http://localhost:5173).
+5. **Access Application**:
+   Navigate to [http://localhost:5173](http://localhost:5173) in your browser.
 
 ---
 
-## 🧪 6. Demo Accounts (Quick Persona Switcher)
+## 🧪 Demo Accounts (Pre-Seeded Personas)
 
-Harvest Bridge includes pre-seeded demo accounts with password `Harvest@123`:
+All demo accounts share the password: `Harvest@123`
 
-| Role | Name | Phone Number | Location |
-| :--- | :--- | :--- | :--- |
-| **Farmer** | Ravi Kumar | `9876543001` | Palamaner, Chittoor |
-| **Farmer** | Anitha Devi | `9876543002` | Kuppam, Chittoor |
-| **Buyer (Processor)** | Chittoor Tomato Processing Co. | `9876543210` | Chittoor Industrial Area |
-| **Organization (NGO)** | Sri Venkateswara Community Kitchen | `9876543300` | Tirupati |
-| **Administrator** | Operations Admin | `9876543999` | Vijayawada APMC HQ |
+| Role | Name | Phone Number | Location | Focus / Purpose |
+| :--- | :--- | :--- | :--- | :--- |
+| **Farmer** | Ravi Kumar | `9876543001` | Palamaner, Chittoor | Tomato Farmer (2,500 kg Active Listing) |
+| **Farmer** | Anitha Devi | `9876543002` | Kuppam, Chittoor | Onion & Chilli Farmer |
+| **Buyer (Processor)** | Chittoor Tomato Processing Co. | `9876543210` | Chittoor Industrial Area | Commercial Food Processing (5,000 kg capacity) |
+| **Organization (NGO)** | Sri Venkateswara Community Kitchen | `9876543300` | Tirupati | Hunger-Relief & Surplus Rescue Partner |
+| **Administrator** | Operations Admin | `9876543999` | Vijayawada APMC HQ | System Operations & Audit Monitoring |
 
 ---
 
-## 🌐 7. Production Deployment (Render / Docker)
+## 🌐 Production Deployment (Docker & Cloud)
 
-The application includes a production-ready `Dockerfile` and Render configuration:
+Harvest Bridge is containerized and deployable to any cloud platform (Render, AWS, GCP):
 
 ```bash
 # Build Docker image
 docker build -t harvest-bridge .
 
-# Run Docker container
+# Run containerized application
 docker run -p 3001:3001 harvest-bridge
 ```
 
 ---
 
-*Built with ❤️ for national agricultural innovation, loss prevention, and rural prosperity.*
+## 📄 License & Attribution
+
+This project is open-source and licensed under the [MIT License](LICENSE).  
+Market benchmarks and agricultural guidelines are grounded in open datasets from the **AP State Agricultural Marketing Board (APMC)**, **Agmarknet**, and the **Indian Council of Agricultural Research (ICAR)**.
+
+*Built with ❤️ for national agricultural innovation, post-harvest loss prevention, and farmer prosperity.*
